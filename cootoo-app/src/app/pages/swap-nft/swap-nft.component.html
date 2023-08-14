@@ -1,0 +1,76 @@
+<app-nft-card [nft]="nft | async"></app-nft-card>
+
+<form [formGroup]="form" (ngSubmit)="swap()">
+
+    <div class="row m-3 m-md-4 justify-content-center">
+  
+      <div class="col-12 col-sm-6 col-md-7 col-lg-7 mb-3">
+  
+        <h3 class="mb-3">
+          Swap
+        </h3> 
+
+        <!-- <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Coop address</mat-label>
+            <input matInput type="text" formControlName="coop_address" required>
+        </mat-form-field> -->
+
+        <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Coop address</mat-label>
+            <mat-select formControlName="coop_address" required>
+              <mat-option *ngFor="let coop of coops" [value]="coop.contract">
+                {{coop.contract}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+        <!-- <mat-form-field class="full-width" appearance="outline">
+            <mat-label>FA2 address</mat-label>
+            <input matInput type="text" formControlName="fa2_address" required>
+        </mat-form-field> -->
+
+        <!-- <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Creator</mat-label>
+            <input matInput type="text" formControlName="creator" required>
+        </mat-form-field> -->
+
+        <!-- <mat-form-field class="full-width" appearance="outline">
+            <mat-label>NFT ID</mat-label>
+            <input matInput class="text-right-align" type="number" formControlName="objkt_id" required>
+        </mat-form-field> -->
+
+        <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Amount</mat-label>
+            <input matInput class="text-right-align" type="number" formControlName="objkt_amount" required>
+        </mat-form-field>
+
+        <mat-form-field class="full-width" appearance="outline">
+            <mat-label>NFT price</mat-label>
+            <input matInput class="text-right-align" type="number" formControlName="xtz_per_objkt" required>
+            <span matTextSuffix>ꜩ</span>
+        </mat-form-field>
+
+        <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Royalties</mat-label>
+            <input matInput class="text-right-align" type="number" formControlName="royalties" required>
+            <span matTextSuffix>%</span>
+        </mat-form-field>
+  
+        
+        
+    
+        <button
+            mat-flat-button 
+            color="primary" 
+            type="submit"
+            [disabled]="!form.valid">Swap
+        </button>
+        
+ 
+      </div>
+
+  
+    </div>
+  
+  </form>
+  

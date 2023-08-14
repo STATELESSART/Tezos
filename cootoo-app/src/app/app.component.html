@@ -1,0 +1,105 @@
+<div class="mat-app-background main-class">
+
+  <div class="header">
+
+    <mat-toolbar class="navbar navbar-expand-sm">
+
+        <a class="navbar-brand fw-bold" routerLink=".">
+          <img class="me-3" id="navbar-brand-img" src="../favicon.ico" height="35">{{ appName }}
+        </a>
+                
+        <button mat-icon-button class="navbar-toggler" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
+          <mat-icon>menu</mat-icon>
+        </button>
+  
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" data-bs-backdrop="false" aria-labelledby="offcanvasNavbarLabel">
+          <div class="offcanvas-header">
+            <button mat-button class="navbar-brand fw-bold" routerLink="." data-bs-dismiss="offcanvas">
+              <img class="me-3" id="navbar-brand-img-offcanvas" src="../favicon.ico" height="35">{{ appName }}
+            </button>
+            <button matSuffix mat-icon-button data-bs-dismiss="offcanvas">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        
+          <div class="offcanvas-body">
+
+            <mat-nav-list class="navbar-nav me-auto header-menu pb-0">
+
+                <a class="text-decoration-none me-sm-2" routerLink="coops"><button mat-button data-bs-dismiss="offcanvas">Coops</button></a>                
+                <!-- <a class="text-decoration-none me-sm-2" routerLink="swap"><button mat-button data-bs-dismiss="offcanvas">Swap</button></a> -->
+                <a class="text-decoration-none" routerLink="create"><button mat-button data-bs-dismiss="offcanvas">Create coop</button></a>
+              
+            </mat-nav-list>
+  
+            <mat-nav-list class="navbar-nav ml-auto header-menu pb-0">
+
+              <!-- <div class="dark-toggle">
+                <button mat-icon-button color="primary" (click)="toggleDarkButton()">
+                  <mat-icon>brightness_2</mat-icon>
+                </button>
+              </div> -->
+                
+              <button
+              *ngIf="!(connectedWallet$ | async)"
+              mat-flat-button color="accent"
+              (click)="connectWallet()"
+              >
+              Connect Wallet
+              </button>
+            
+              <div *ngIf="connectedWallet$ | async">
+                <button mat-flat-button color="accent" [matMenuTriggerFor]="menu" *ngIf="profile.alias">{{ profile.alias }}</button>
+                <button mat-flat-button color="accent" [matMenuTriggerFor]="menu" *ngIf="!profile.alias">{{ (connectedWallet$ | async)?.address! }}</button>
+                <!-- <button mat-flat-button color="accent" [matMenuTriggerFor]="menu">{{ (connectedWallet$ | async)?.address! }}</button> -->
+                <mat-menu #menu="matMenu" class="matMenuClass">
+                    <div class="profileInfo">
+                      <a class="text-decoration-none" [routerLink]="['profile', (connectedWallet$ | async)?.address!]">
+                        <button class="profileButton" mat-flat-button color="accent" (click)="toggleMenu()">Profile</button>
+                      </a>
+                        
+                      <br>
+                      <button class="profileButton" mat-flat-button color="accent" (click)="disconnectWallet()">Disconnect</button>
+                    </div>
+                    
+                </mat-menu>
+              </div>
+
+            </mat-nav-list>
+
+            <!-- <mat-nav-list class="navbar-nav footer-menu fixed-bottom mb-3 ml-auto" style="visibility: hidden; position: absolute">
+              <a class="text-decoration-none" routerLink="legal"><button mat-button data-bs-dismiss="offcanvas">Legal</button></a>
+              <a class="text-decoration-none" [href]="twitterURL" target="_blank"><button mat-button data-bs-dismiss="offcanvas">Twitter</button></a>
+              <a class="text-decoration-none" [href]="githubURL" target="_blank"><button mat-button data-bs-dismiss="offcanvas">Github</button></a>
+              <a class="text-decoration-none py-3" [routerLink]="['view/', supportUsContract]"><button mat-flat-button color="accent" data-bs-dismiss="offcanvas">Support us</button></a>
+              <p style="font-size: 0.7rem; line-height: 0.7rem; margin-bottom: 0px;">The contract has not been audited by <br> a third party, use at your own risk.</p>
+            </mat-nav-list> -->
+
+          </div>
+        </div>
+    </mat-toolbar>
+
+  </div>
+
+  <div class="content" #content>
+      <router-outlet></router-outlet>
+  </div>
+
+  <!-- <div class="footer">
+    <mat-toolbar>
+      <mat-nav-list class="navbar-nav pb-0">
+        <a class="text-decoration-none me-2" [routerLink]="['view/', supportUsContract]"><button mat-flat-button color="accent">Support us</button></a>
+        <a class="text-decoration-none me-2" [href]="twitterURL" target="_blank"><button mat-button>Twitter</button></a>
+        <a class="text-decoration-none" [href]="githubURL" target="_blank"><button mat-button>Github</button></a>
+        <a class="text-decoration-none me-2" routerLink="legal"><button mat-button>Legal</button></a>
+      </mat-nav-list>
+
+      <mat-nav-list class="navbar-nav ms-auto pb-0">
+        <p style="font-size: 0.7rem; line-height: 0.7rem; margin-bottom: 0px;">The contract has not been audited by <br> a third party, use at your own risk.</p>
+      </mat-nav-list>
+    </mat-toolbar>
+  </div> -->
+  
+</div>
+
+

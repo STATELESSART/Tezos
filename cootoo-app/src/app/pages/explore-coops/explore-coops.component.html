@@ -1,0 +1,26 @@
+<div class="row m-3 m-md-4 gx-sm-3">
+
+    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4">
+        <div class="col pt-0 pb-4" *ngFor="let coop of coops">
+            
+            
+                <mat-card>
+
+                    <a class="stretched-link text-decoration-none" [routerLink]="['../view', coop.contract]"></a>
+
+                    <p>Manager: {{ coop.manager }}</p>
+                    <p>Coop share: {{ coop.coop_share / 10 }}%</p>
+                    <div>
+                        Members: 
+                        <p *ngFor="let member of coop.members">
+                            {{ member }}
+                        </p>
+                    </div>
+                   
+                </mat-card>
+            
+        </div>
+    </div>
+      
+</div>
+  

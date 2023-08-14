@@ -1,0 +1,16 @@
+<p>Manager: {{ coop.manager }}</p>
+<p>Coop share: {{ coop.coop_share / 10 }}%</p>
+<div>
+    Members: 
+    <p *ngFor="let member of coop.members">
+        {{ member }}
+    </p>
+</div>
+
+<div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4">
+    <div class="col pt-0 pb-4" *ngFor="let nft of coopNfts">
+        <div *ngIf="nft.swap && nft.swap.objkt_amount > 0"></div>
+        <app-nft-card [nft]="nft"></app-nft-card>
+    </div>
+</div>
+

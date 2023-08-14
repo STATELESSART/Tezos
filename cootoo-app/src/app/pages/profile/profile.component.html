@@ -1,0 +1,79 @@
+<div class="row m-3 m-md-4 justify-content-center">
+
+    <div class="col-12 col-sm-10 col-md-8 col-xl-6 col-xxl-6">
+
+        <mat-card class="mx-auto" appearance="outlined" *ngIf="profileReady && profile.exists">
+
+        
+            <mat-card-header>
+                <div mat-card-avatar [ngStyle]="{'background-image': 'url(' + profile.logoURL + ')'}" style="background-size: cover;"></div>
+            
+                <mat-card-title *ngIf="profile.alias" style="font-size:x-large;">{{ profile.alias }}</mat-card-title>
+                <mat-card-title *ngIf="!profile.alias" style="font-size:x-large;">Unknown name</mat-card-title>
+
+                <mat-card-subtitle class="mb-2" *ngIf="profile.description">{{ profile.description }}</mat-card-subtitle>
+            </mat-card-header>
+            
+            <mat-card-content>
+
+                <div *ngIf="profile.twitterURL">
+                    Twitter: <a [href]="profile.twitterURL" target="_blank">{{ profile.twitterURL }}</a>
+                </div>
+
+                <div *ngIf="profile.githubURL">
+                    GitHub: <a [href]="profile.githubURL" target="_blank">{{ profile.githubURL }}</a>
+                </div>
+
+                <div *ngIf="profile.website">
+                    Website: <a [href]="profile.website" target="_blank">{{ profile.website }}</a>
+                </div>
+
+                <div *ngIf="profile.ethAddress">
+                    Eth address: <a [href]="'https://etherscan.io/address/' + profile.ethAddress" target="_blank">{{ profile.ethAddress }}</a>
+                </div>            
+    
+            </mat-card-content> 
+
+        </mat-card>    
+
+    
+        <mat-card class="mx-auto" *ngIf="profileReady && !profile.exists">
+            <mat-card-header>
+                <mat-card-title>No profile found for this address</mat-card-title>
+            </mat-card-header>
+        </mat-card>
+
+        <mat-card class="mx-auto" appearance="outlined" *ngIf="!profileReady">
+            <mat-card-content>
+                <mat-card-title>Loading profile...</mat-card-title>
+            </mat-card-content>
+        </mat-card>
+
+    </div>
+</div>
+
+<div class="row m-3 m-md-4 justify-content-center">
+ 
+    <div class="col-12 col-sm-10 col-xl-8 mt-3" *ngIf="profileReady">
+
+            <h3 class="mb-3" *ngIf="walletNfts.length > 0">NFTs</h3>
+            <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4">
+                <div class="col pt-0 pb-4" *ngFor="let nft of walletNfts">
+                    <!-- <a [routerLink]="['../../swap', nft.contract.address, nft.tokenId]">
+                        <p>Contract address: {{ nft.contract.address }}</p>
+                        <p>Token id: {{ nft.tokenId }}</p>
+                        <p>Supply: {{ nft.totalSupply }}</p>
+                        <p>Title: {{ nft.metadata.name }}</p>
+                    </a> -->
+                    
+                    <app-nft-card [nft]="nft"></app-nft-card>
+                 
+                    
+                    
+                </div>
+            </div>
+            <h3 class="mb-3" *ngIf="walletNfts.length == 0">No owned NFTs</h3>
+ 
+    </div>
+    
+</div>

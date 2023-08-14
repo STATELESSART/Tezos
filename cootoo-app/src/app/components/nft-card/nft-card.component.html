@@ -1,0 +1,36 @@
+<div *ngIf="nft">
+
+    <mat-card>
+        <a class="stretched-link" [routerLink]="['../../nft', nft.contract.address, nft.tokenId]" style="text-decoration: none;"></a>
+        
+        <mat-card-header>
+            <mat-card-title>{{ nft.metadata.name }}</mat-card-title>
+            <mat-card-subtitle>{{ nft.metadata.creators }}</mat-card-subtitle>
+        </mat-card-header>
+
+         <img mat-card-image [src] = "nft.metadata.artifactUri | safe" style="width:100%">
+         <!-- <iframe [src] = "nft.metadata.artifactUri | safe"></iframe> -->
+
+         <mat-card-content>
+            <p>{{ nft.metadata.description }}</p>
+         </mat-card-content>
+
+         <mat-card-actions *ngIf="nft.swap && nft.swap.objkt_amount > 0">
+            <button mat-button (click)="collect()">Collect</button>
+            <!-- <button mat-button>SHARE</button> -->
+         </mat-card-actions>
+
+    </mat-card>
+
+    <!-- <div *ngIf="nft.metadata.artifactUri">
+        <iframe [src] = "nft.metadata.artifactUri | safe"></iframe>
+    </div>
+
+    <p>Contract address: {{ nft.contract.address }}</p>
+    <p>Token id: {{ nft.tokenId }}</p>
+    <p>Supply: {{ nft.totalSupply }}</p>
+    <p>Title: {{ nft.metadata.name }}</p> -->
+
+</div>
+   
+    

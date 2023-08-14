@@ -1,0 +1,36 @@
+
+<form [formGroup]="form" (ngSubmit)="createCoop()">
+
+    <div class="row m-3 m-md-4 justify-content-center">
+  
+      <div class="col-12 col-sm-6 col-md-7 col-lg-7 mb-3">
+  
+        <h3 class="mb-3">
+          Campaign details
+        </h3> 
+
+
+        <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Coop share</mat-label>
+            <input matInput class="text-right-align" type="number" formControlName="coop_share" required>
+            <span matTextSuffix>%</span>
+        </mat-form-field>
+  
+        
+        
+    
+        <button
+            mat-flat-button 
+            color="primary" 
+            type="submit"
+            [disabled]="!form.valid">Create
+        </button>
+        
+ 
+      </div>
+
+  
+    </div>
+  
+  </form>
+  
