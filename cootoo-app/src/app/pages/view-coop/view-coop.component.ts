@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Coop } from 'src/app/models/coop.model';
 import { Nft } from 'src/app/models/nft.model';
+import { TaquitoService } from 'src/app/services/taquito.service';
 import { TzktService } from 'src/app/services/tzkt.service';
+import { FormControl, FormGroup, Validators, ValidationErrors, ValidatorFn, AbstractControl } from '@angular/forms';
 
 
 @Component({
@@ -12,12 +14,17 @@ import { TzktService } from 'src/app/services/tzkt.service';
 })
 export class ViewCoopComponent implements OnInit {
 
+  form = new FormGroup({
+    member_address: new FormControl<string>('', Validators.required)
+  });
+
   coop: Coop = new Coop()
   coopNfts: Nft[] = []
 
   constructor(
     private route: ActivatedRoute,
-    private tzkt: TzktService
+    private tzkt: TzktService,
+    private taquito: TaquitoService
   ){}
 
   async ngOnInit() {
@@ -33,6 +40,38 @@ export class ViewCoopComponent implements OnInit {
           this.coopNfts = nfts
       })
     });
+
+  }
+
+
+  addMember() {
+
+    this.taquito.accountInfo$.subscribe(async accountInfo => {
+      if (!accountInfo) {
+        accountInfo = await this.taquito.requestPermission()
+      }
+
+      const member_address = this.form.value.member_address
+      
+      if (member_address) {
+        
+
+        await this.taquito.addMember(this.coop.contract, member_address).then(([fail, errorMessage]) => {
+          if (!fail) {
+            const dialogMessage = 'Sucess add'
+            console.log(dialogMessage)
+            // this.successDialog(loadingDialog, dialogMessage)
+          } else {
+            console.log(errorMessage)
+            // this.failDialog(loadingDialog, errorMessage)
+          }
+        })
+
+      }
+
+      
+
+    })
 
   }
 
