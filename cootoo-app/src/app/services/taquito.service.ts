@@ -93,14 +93,15 @@ export class TaquitoService {
 
   // ----- MARKETPLACE CONTRACT ------  
 
-  async createCoop(coopShare: number) {
+  async createCoop(coopShare: number, members: string[]) {
 
     this.taquito.setProvider({ wallet: this.wallet });
 
     try {
       return await this.taquito.wallet.at(this.contract)
         .then((c: any) => c.methods.create_coop(
-            coopShare
+            coopShare,
+            members
           )
           .send()
       ).then((op: any) => {
@@ -236,14 +237,14 @@ export class TaquitoService {
 
   // ------- INDIVIDUAL COOP CONTRACT ------- 
 
-  async addMember(coop_address: string, member_address: string) {
+  async addMembers(coop_address: string, address_list: string[]) {
 
     this.taquito.setProvider({ wallet: this.wallet });
 
     try {
       return await this.taquito.wallet.at(coop_address)
-        .then((c: any) => c.methods.add_member(
-          member_address
+        .then((c: any) => c.methods.add_members(
+          address_list
         )
           .send()
       ).then((op: any) => {

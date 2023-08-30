@@ -6,7 +6,7 @@
       <div class="col-12 col-sm-6 col-md-7 col-lg-7 mb-3">
   
         <h3 class="mb-3">
-          Campaign details
+          Create coop
         </h3> 
 
 
@@ -15,6 +15,27 @@
             <input matInput class="text-right-align" type="number" formControlName="coop_share" required>
             <span matTextSuffix>%</span>
         </mat-form-field>
+  
+
+        <h4>Members</h4>
+        <ng-container formArrayName="members">
+          <ng-container *ngFor="let memberForm of members.controls; let i = index">
+              <div [formGroupName]="i">
+                  <mat-form-field appearance="fill">
+                      <input matInput
+                             formControlName="address"
+                             placeholder="Address">
+                  </mat-form-field>
+                  
+                  <mat-icon class="delete-btn" (click)="deleteMember(i)">
+                      delete_forever</mat-icon>
+                </div>
+            </ng-container>
+        </ng-container>
+      
+        <button mat-mini-fab type='button' (click)="addMember()">
+            <mat-icon class="add-course-btn">add</mat-icon>
+        </button>
   
         
         

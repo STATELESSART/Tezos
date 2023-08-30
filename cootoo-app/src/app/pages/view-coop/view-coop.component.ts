@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
-import { Coop } from 'src/app/models/coop.model';
+import { Coop, Member } from 'src/app/models/coop.model';
 import { Nft } from 'src/app/models/nft.model';
 import { TaquitoService } from 'src/app/services/taquito.service';
 import { TzktService } from 'src/app/services/tzkt.service';
-import { FormControl, FormGroup, Validators, ValidationErrors, ValidatorFn, AbstractControl } from '@angular/forms';
+import { FormControl, FormGroup, Validators, ValidationErrors, ValidatorFn, AbstractControl, FormBuilder, FormArray } from '@angular/forms';
 
 
 @Component({
@@ -15,8 +15,10 @@ import { FormControl, FormGroup, Validators, ValidationErrors, ValidatorFn, Abst
 export class ViewCoopComponent implements OnInit {
 
   form = new FormGroup({
-    member_address: new FormControl<string>('', Validators.required)
+    members: this.fb.array([])
   });
+
+  formValue: Member[] = []
 
   coop: Coop = new Coop()
   coopNfts: Nft[] = []
@@ -24,8 +26,32 @@ export class ViewCoopComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private tzkt: TzktService,
-    private taquito: TaquitoService
-  ){}
+    private taquito: TaquitoService,
+    private fb: FormBuilder
+  ){
+    this.form.valueChanges.subscribe(_ => {
+      this.formValue = this.form.value.members as Member[];
+    });
+  }
+
+
+  get members() {
+    return this.form.controls["members"] as FormArray;
+  }
+
+
+  addMemberForm() {
+    const memberForm = this.fb.group({
+        address: ['', Validators.required]
+    });
+  
+    this.members.push(memberForm);
+  }
+
+  deleteMember(memberIndex: number) {
+    this.members.removeAt(memberIndex);
+  }
+
 
   async ngOnInit() {
 
@@ -41,22 +67,27 @@ export class ViewCoopComponent implements OnInit {
       })
     });
 
+    this.addMemberForm()
+
   }
 
 
-  addMember() {
+  addMembers() {
 
     this.taquito.accountInfo$.subscribe(async accountInfo => {
       if (!accountInfo) {
         accountInfo = await this.taquito.requestPermission()
       }
 
-      const member_address = this.form.value.member_address
+      const members_form = this.formValue
+      const members: string[] = []
+      members_form.forEach(member => members.push(member.address))
       
-      if (member_address) {
-        
+      console.log(members_form)
 
-        await this.taquito.addMember(this.coop.contract, member_address).then(([fail, errorMessage]) => {
+      if (members.length > 0) {
+
+        await this.taquito.addMembers(this.coop.contract, members).then(([fail, errorMessage]) => {
           if (!fail) {
             const dialogMessage = 'Sucess add'
             console.log(dialogMessage)
@@ -66,6 +97,8 @@ export class ViewCoopComponent implements OnInit {
             // this.failDialog(loadingDialog, errorMessage)
           }
         })
+        
+        
 
       }
 

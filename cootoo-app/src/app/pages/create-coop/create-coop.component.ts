@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TaquitoService } from 'src/app/services/taquito.service';
-import { FormControl, FormGroup, Validators, ValidationErrors, ValidatorFn, AbstractControl } from '@angular/forms';
+import { FormControl, FormGroup, Validators, ValidationErrors, ValidatorFn, AbstractControl, FormArray, FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Coop } from 'src/app/models/coop.model';
 
@@ -12,21 +12,41 @@ import { Coop } from 'src/app/models/coop.model';
 
 export class CreateCoopComponent {
 
-  form = new FormGroup({
-    coop_share: new FormControl<number>(0, Validators.required)
+  form = this.fb.group({
+    coop_share: new FormControl<number>(0, Validators.required),
+    members: this.fb.array([])
   });
 
   formValue: Coop = new Coop()
 
   constructor(
     private taquito: TaquitoService,
-    public router: Router,
+    private router: Router,
+    private fb: FormBuilder
   ){
     this.form.valueChanges.subscribe(_ => {
       this.formValue = this.form.value as Coop;
     });
+
+    this.addMember()
   }
 
+  get members() {
+    return this.form.controls["members"] as FormArray;
+  }
+
+
+  addMember() {
+    const memberForm = this.fb.group({
+        address: ['', Validators.required]
+    });
+  
+    this.members.push(memberForm);
+  }
+
+  deleteMember(memberIndex: number) {
+    this.members.removeAt(memberIndex);
+  }
 
   createCoop() {
 
@@ -42,7 +62,10 @@ export class CreateCoopComponent {
       // const description = this.formValue.description
       // const ascii = this.asciiText
       // const category = this.formValue.category
+      console.log(this.formValue)
       const coopShare = 10 * this.formValue.coop_share
+      const members: string[] = []
+      this.formValue.members.forEach(member => members.push(member.address))
 
       // let url = this.formValue.url;
       // if (url && url.indexOf('://') === -1) {
@@ -50,7 +73,7 @@ export class CreateCoopComponent {
       // }
       // const finalUrl = url ? new URL(url).href : ''
 
-      await this.taquito.createCoop(coopShare).then(data => {
+      await this.taquito.createCoop(coopShare, members).then(data => {
         data.subscribe(async (originatedAddress: string | object) => {
           // success
           if (typeof originatedAddress == 'string') {

@@ -99,7 +99,7 @@ export class TzktService {
         swap.swap_id = swapsRes.key
         console.log(swap)
         if (swap.coop_address == address) {
-          const fa2_address = swap.fa2
+          const fa2_address = swap.fa2_address
           const objkt_id = swap.objkt_id;
           (await this.getNft(fa2_address, objkt_id)).subscribe(nft => {
             nft.swap = swap

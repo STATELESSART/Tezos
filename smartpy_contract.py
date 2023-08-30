@@ -41,7 +41,7 @@ def m():
         # The user that created the swap
         issuer=sp.address,
         # The token FA2 contract address
-        fa2=sp.address,
+        fa2_address=sp.address,
         # The token id (not necessarily from a OBJKT)
         objkt_id=sp.nat,
         # The number of swapped editions
@@ -52,7 +52,7 @@ def m():
         royalties=sp.nat,
         # The address that will receive the royalties
         creator=sp.address).layout(
-            ("coop_address", ("issuer", ("fa2", ("objkt_id", ("objkt_amount", ("xtz_per_objkt", ("royalties", "creator"))))))))
+            ("coop_address", ("issuer", ("fa2_address", ("objkt_id", ("objkt_amount", ("xtz_per_objkt", ("royalties", "creator"))))))))
 
 
     class FA2Contract(
@@ -68,9 +68,9 @@ def m():
 
     class Coop(sp.Contract):
         
-        def __init__(self, manager, coop_share):
-            self.data.manager = manager
-            self.data.members = sp.cast(sp.set(manager), sp.set[sp.address])
+        def __init__(self, manager, coop_share, members):
+            self.data.manager = sp.cast(manager, sp.address)
+            self.data.members = sp.cast(members, sp.set[sp.address])
             self.data.coop_share = sp.cast(coop_share, sp.nat)
             self.data.proposed_manager = sp.cast(None, sp.option[sp.address])
             
@@ -104,16 +104,17 @@ def m():
             
         # ADD MEMBERS TO THE COOP - only coop admin
         @sp.entrypoint
-        def add_member(self, address):
+        def add_members(self, address_list):
 
-            sp.cast(address, sp.address)
+            sp.cast(address_list, sp.list[sp.address])
             assert self.check_is_manager(), "MP_NOT_MANAGER"
-            assert not self.data.members.contains(address), "ALREADY MEMBER"
 
             # Check that no tez have been transferred
             self.check_no_tez_transfer()
-            
-            self.data.members.add(address)
+
+            for address in address_list:
+                assert not self.data.members.contains(address), "ALREADY A MEMBER"
+                self.data.members.add(address)
 
         # DELETE MEMBERS FROM THE COOP - only coop admin and member
         @sp.entrypoint
@@ -288,18 +289,26 @@ def m():
 
 
         @sp.entrypoint
-        def create_coop(self, coop_share):
+        def create_coop(self, params):
 
-            sp.cast(coop_share, sp.nat)
+            sp.cast(params, sp.record(
+                coop_share = sp.nat,
+                members = sp.set[sp.address]
+            ))
+            #sp.cast(coop_share, sp.nat)
+            #sp.cast(members, sp.set[sp.address])
     
             # Check that no tez have been transferred
             self.check_no_tez_transfer()
 
+            members = params.members
+            members.add(sp.sender)
+
             s = sp.record(
                 manager = sp.sender, 
                 proposed_manager = None,
-                members = sp.cast(sp.set(), sp.set[sp.address]),
-                coop_share = coop_share
+                members = members,
+                coop_share = params.coop_share
             )
 
             _ = sp.create_contract(Coop, None, sp.tez(0), s)
@@ -373,7 +382,7 @@ def m():
             self.data.swaps[self.data.counter] = sp.record(
                 coop_address=params.coop_address,
                 issuer=sp.sender,
-                fa2=params.fa2_address,
+                fa2_address=params.fa2_address,
                 objkt_id=params.objkt_id,
                 objkt_amount=params.objkt_amount,
                 xtz_per_objkt=params.xtz_per_objkt,
@@ -441,7 +450,7 @@ def m():
                 sp.send(swap.issuer, sp.amount - royalties_amount - fee_amount - coop_amount)
     
             # Transfer the token edition to the collector
-            c = sp.contract(t.transfer_params, swap.fa2, entrypoint="transfer").unwrap_some()
+            c = sp.contract(t.transfer_params, swap.fa2_address, entrypoint="transfer").unwrap_some()
             sp.transfer(
                 [sp.record(
                     from_=sp.self_address(),
@@ -453,7 +462,10 @@ def m():
     
             # Update the number of editions available in the swaps big map
             self.data.swaps[swap_id].objkt_amount = sp.as_nat(swap.objkt_amount - 1)
-    
+
+            if self.data.swaps[swap_id].objkt_amount == 0:
+                del self.data.swaps[swap_id]
+                
         @sp.entrypoint
         def cancel_swap(self, swap_id):
             """Cancels an existing swap.
@@ -482,7 +494,7 @@ def m():
             assert swap.objkt_amount > 0, "MP_SWAP_COLLECTED" 
     
             # Transfer the remaining token editions back to the owner
-            c = sp.contract(t.transfer_params, swap.fa2, entrypoint="transfer").unwrap_some()
+            c = sp.contract(t.transfer_params, swap.fa2_address, entrypoint="transfer").unwrap_some()
             sp.transfer(
                 [sp.record(
                     from_=sp.self_address(),
@@ -831,6 +843,10 @@ def test():
 
     fa2_admin = sp.test_account("fa2_admin")
     factory_admin = sp.test_account("factory_admin")
+    coop_admin = sp.test_account("coop_admin")
+    coop_member = sp.test_account("coop_member")
+    some_user = sp.test_account("some_user")
+    some_user2 = sp.test_account("some_user2")
 
     #sc = sp.test_scenario(m)
     sc = sp.test_scenario([fa2.t, fa2.main, m])
@@ -838,6 +854,32 @@ def test():
     sc.h2("Initialize one FA2")
     fa2_contract1 = m.FA2Contract(fa2_admin.address)
     sc += fa2_contract1
+
+    # metadata
+    NFT0 = {"": sp.pack("ipfs://Qm")}
+    NFT1 = {"": sp.pack("ipfs://Qm")}
+    
+    sc.h2("Mint in FA2 1")
+    fa2_contract1.mint(
+        [
+            sp.record(metadata = NFT0, to_ = coop_admin.address),
+            sp.record(metadata = NFT1, to_ = some_user.address),
+            sp.record(metadata = NFT1, to_ = coop_member.address),
+        ]
+    ).run(sender = fa2_admin)
+
+    # sc.h2("Initialize another FA2")
+    # fa2_contract2 = m.FA2Contract(fa2_admin.address)
+    # sc += fa2_contract2
+
+    # sc.h2("Mint in FA2 2")
+    # fa2_contract2.mint(
+    #     [
+    #         sp.record(metadata = NFT0, to_ = coop_admin.address),
+    #         sp.record(metadata = NFT1, to_ = some_user.address),
+    #         sp.record(metadata = NFT1, to_ = coop_member.address),
+    #     ]
+    # ).run(sender = fa2_admin)
     
     sc.h2("Initialize market")
     metadata = sp.big_map({"": sp.pack("ipfs://Qm")})
@@ -846,4 +888,74 @@ def test():
     market = m.Marketplace(factory_admin.address, metadata, allowed_fa2s, fee)
     sc += market
 
+    sc.h2("Test coop factory")
+    coop_share = 100
+    coop = market.create_coop(sp.record(
+        coop_share = coop_share, 
+        members = sp.set()
+    )).run(sender = coop_admin)
+
+    sc.h2("Initialize coop contract")
+    coop_share = 100
+    members = sp.set()
+    coop = m.Coop(coop_admin.address, coop_share, members)
+    sc += coop
+    # coop = market.create_coop().run(sender = coop_admin)
     
+    sc.h3("Add member to coop")
+    coop.add_members([coop_admin.address, coop_member.address]).run(sender = coop_admin)
+    coop.add_members([coop_admin.address, coop_member.address]).run(sender = coop_admin, valid = False)
+
+    sc.h3("Put token_id 0 in the matketplace - update operators + swap")
+    fa2_contract1.update_operators([sp.variant("add_operator", sp.record(
+        owner = coop_admin.address,
+        operator = market.address,
+        token_id = 0))
+    ]).run(sender = coop_admin)
+
+    #sc.h2("Swap while changing creator - bug? How to avoid?")
+    market.swap(sp.record(
+        coop_address=coop.address,
+        fa2_address=fa2_contract1.address,
+        objkt_id=0,
+        objkt_amount=1,
+        xtz_per_objkt=sp.tez(100),
+        royalties=100,
+        creator=some_user.address
+    )).run(sender = coop_admin)
+
+    sc.h3("Collect token 0")
+    market.collect(0).run(sender = some_user2, amount = sp.tez(100))
+
+    sc.h2("The user that collected token 0 tries to swap in the same coop but it's not a member")
+    market.swap(sp.record(
+        coop_address=coop.address,
+        fa2_address=fa2_contract1.address,
+        objkt_id=0,
+        objkt_amount=1,
+        xtz_per_objkt=sp.tez(100),
+        royalties=100,
+        creator=some_user.address
+    )).run(sender = some_user2, valid=False)
+    
+    sc.h2("Put token 1 in the market without being a coop member")
+    fa2_contract1.update_operators([sp.variant("add_operator", sp.record(
+        owner = some_user.address,
+        operator = market.address,
+        token_id = 1))
+    ]).run(sender = some_user)
+    
+    market.swap(sp.record(
+        coop_address=coop.address,
+        fa2_address=fa2_contract1.address,
+        objkt_id=1,
+        objkt_amount=1,
+        xtz_per_objkt=sp.tez(100),
+        royalties=100,
+        creator=coop_admin.address
+    )).run(sender = some_user, valid=False)
+
+
+    sc.h1("Transfer manager")
+    coop.transfer_manager(coop_member.address).run(sender = coop_admin)
+    coop.accept_manager().run(sender = coop_member)

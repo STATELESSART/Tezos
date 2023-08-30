@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   appName: 'Cootoo',
-  contract: 'KT1L4eJcYUQT83kX11AHYEsbucWb8rxAdBtK',
+  contract: 'KT1HAaynoWZ8hXjHCwV6xvFoo3zmXjGUEbiD', //'KT1HvJ6kwetMW9uyFWXaYJjZpsHyqLuu89Dv',
   tzprofilesUrlAPI: 'https://api.tzprofiles.com',
   tzktUrlAPI: 'https://api.ghostnet.tzkt.io/v1', //'https://api.tzkt.io/v1',
   iconForWalletUrl: 'https://storageapi.fleek.co/4397da0e-f594-4321-9f84-be6324db12a0-bucket/FUNDlight.svg', // TODO: nova conta
