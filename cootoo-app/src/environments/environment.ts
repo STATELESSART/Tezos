@@ -5,17 +5,12 @@
 export const environment = {
   production: false,
   appName: 'Cootoo',
-  contract: 'KT1HAaynoWZ8hXjHCwV6xvFoo3zmXjGUEbiD', //'KT1HvJ6kwetMW9uyFWXaYJjZpsHyqLuu89Dv',
+  contract: 'KT19xNfE5JndH3Aq2fR5diewC73cDjQMR3kH', //'KT1HvJ6kwetMW9uyFWXaYJjZpsHyqLuu89Dv',
   tzprofilesUrlAPI: 'https://api.tzprofiles.com',
   tzktUrlAPI: 'https://api.ghostnet.tzkt.io/v1', //'https://api.tzkt.io/v1',
   iconForWalletUrl: 'https://storageapi.fleek.co/4397da0e-f594-4321-9f84-be6324db12a0-bucket/FUNDlight.svg', // TODO: nova conta
   imageForMetaTag: 'https://storage.fleek.zone/4397da0e-f594-4321-9f84-be6324db12a0-bucket/LogoFFLight.png', // TODO: nova conta
-  // indexerURL: 'https://18.118.128.2.nip.io/api/rest',
-  // siteURL: 'https://afundfactory.tez.page',
-  // githubURL: 'https://github.com/AFundFactory',
-  // twitterURL: 'https://twitter.com/AFundFactory',
-  // country: 'Portugal',
-  // email: 'fund.factory@proton.me'
+  indexerURL: 'https://54.237.211.33.nip.io/api/rest',
 };
 
 /*

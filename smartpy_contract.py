@@ -270,6 +270,8 @@ def m():
             self.data.swaps_paused=sp.cast(False, sp.bool)
             # A flag that indicates if the marketplace collects are paused or not.
             self.data.collects_paused=sp.cast(False, sp.bool)
+            # List of originated coops
+            self.data.coops=sp.cast(sp.big_map(), sp.big_map[sp.address, sp.unit])
 
 
         @sp.private(with_storage="read-only")
@@ -311,7 +313,8 @@ def m():
                 coop_share = params.coop_share
             )
 
-            _ = sp.create_contract(Coop, None, sp.tez(0), s)
+            contract_address = sp.create_contract(Coop, None, sp.tez(0), s)
+            self.data.coops[contract_address] = ()
             
 
         @sp.entrypoint
