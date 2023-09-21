@@ -4,6 +4,10 @@ import { Profile } from '../../models/profile.model'
 import { TzprofilesService } from '../../services/tzprofiles.service';
 import { TzktService } from 'src/app/services/tzkt.service';
 import { Nft } from 'src/app/models/nft.model';
+import { NftTzkt } from 'src/app/models/nft_tzkt.model';
+import { IndexerService } from 'src/app/services/indexer.service';
+import { Coop, CoopMember } from 'src/app/models/coop.model';
+import { CoopDetail } from 'src/app/models/coop_detail.model';
 
 @Component({
   selector: 'app-profile',
@@ -16,11 +20,13 @@ export class ProfileComponent implements OnInit {
   public profile: Profile = new Profile('')
   public profileReady = false
   public walletNfts: Nft[] = []
+  public walletCoops: CoopMember[] = []
 
   constructor(
     private route: ActivatedRoute,
     private tzprofile: TzprofilesService,
-    private tzkt: TzktService
+    private tzkt: TzktService,
+    private indexer: IndexerService
   ) {}
  
   ngOnInit() {
@@ -39,13 +45,10 @@ export class ProfileComponent implements OnInit {
         console.log(nfts)
       });
 
-      // (await this.indexer.getCampaignsByOwner(this.walletAddress)).subscribe(campaignList => {
-      //   this.ownedCampaigns = campaignList
-      // });
-
-      // (await this.indexer.getCampaignsByDonor(this.walletAddress)).subscribe(campaignList => {
-      //   this.fundedCampaigns = campaignList
-      // })
+      (await this.indexer.getMemberCoops(this.walletAddress)).subscribe(coops => {
+        this.walletCoops = coops
+        console.log(coops)
+      });
 
     })
 

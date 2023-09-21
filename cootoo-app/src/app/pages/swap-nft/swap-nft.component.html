@@ -18,8 +18,8 @@
         <mat-form-field class="full-width" appearance="outline">
             <mat-label>Coop address</mat-label>
             <mat-select formControlName="coop_address" required>
-              <mat-option *ngFor="let coop of coops" [value]="coop.contract">
-                {{coop.contract}}
+              <mat-option *ngFor="let address of coopsAddress" [value]="address">
+                {{address}}
               </mat-option>
             </mat-select>
           </mat-form-field>

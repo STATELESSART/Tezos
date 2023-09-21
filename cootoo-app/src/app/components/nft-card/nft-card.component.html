@@ -1,21 +1,30 @@
 <div *ngIf="nft">
 
     <mat-card>
-        <a class="stretched-link" [routerLink]="['../../nft', nft.contract.address, nft.tokenId]" style="text-decoration: none;"></a>
+        <a *ngIf="swap" class="stretched-link" [routerLink]="['../../nft', nft.fa2Address, nft.tokenId]" style="text-decoration: none;"></a>
         
         <mat-card-header>
-            <mat-card-title>{{ nft.metadata.name }}</mat-card-title>
-            <mat-card-subtitle>{{ nft.metadata.creators }}</mat-card-subtitle>
+            <mat-card-title>{{ nft.title }}</mat-card-title>
+            <mat-card-subtitle>{{ nft.creator.name ? nft.creator.name : nft.creator.address }}</mat-card-subtitle>
         </mat-card-header>
 
-         <img mat-card-image [src] = "nft.metadata.artifactUri | safe" style="width:100%">
+         <img mat-card-image [src] = "nft.artifactUri | ipfs | safe" style="width:100%">
          <!-- <iframe [src] = "nft.metadata.artifactUri | safe"></iframe> -->
 
          <mat-card-content>
-            <p>{{ nft.metadata.description }}</p>
+            <p>{{ nft.description }}</p>
          </mat-card-content>
 
-         <mat-card-actions *ngIf="nft.swap && nft.swap.objkt_amount > 0">
+         <br>
+
+         <mat-card-content *ngIf="swap">
+            <p>Swap issuer: {{ swap.creator.name ? swap.creator.name : swap.creator.address }}</p>
+            <p>Price: {{ swap.price / 1000000 }}</p>
+            <p>Amount left: {{ swap.amountLeft }}</p>
+            <p>Royalties: {{ swap.royalties / 10 }}%</p>
+         </mat-card-content>
+
+         <mat-card-actions *ngIf="swap && swap.amountLeft > 0">
             <button mat-button (click)="collect()">Collect</button>
             <!-- <button mat-button>SHARE</button> -->
          </mat-card-actions>

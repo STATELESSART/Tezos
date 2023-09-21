@@ -28,7 +28,9 @@ import { ViewCoopComponent } from './pages/view-coop/view-coop.component';
 import { SwapNftComponent } from './pages/swap-nft/swap-nft.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { NftCardComponent } from './components/nft-card/nft-card.component';
-import { SafePipe } from './safe.pipe';
+import { SafePipe } from './pipes/safe.pipe';
+import { ShortenPipe } from './pipes/shorten.pipe';
+import { IpfsPipe } from './pipes/ipfs.pipe';
 
 @NgModule({
   declarations: [
@@ -39,7 +41,9 @@ import { SafePipe } from './safe.pipe';
     SwapNftComponent,
     ProfileComponent,
     NftCardComponent,
-    SafePipe
+    SafePipe,
+    ShortenPipe,
+    IpfsPipe
   ],
   imports: [
     BrowserModule,

@@ -9,7 +9,6 @@ export const environment = {
   tzprofilesUrlAPI: 'https://api.tzprofiles.com',
   tzktUrlAPI: 'https://api.ghostnet.tzkt.io/v1', //'https://api.tzkt.io/v1',
   iconForWalletUrl: 'https://storageapi.fleek.co/4397da0e-f594-4321-9f84-be6324db12a0-bucket/FUNDlight.svg', // TODO: nova conta
-  imageForMetaTag: 'https://storage.fleek.zone/4397da0e-f594-4321-9f84-be6324db12a0-bucket/LogoFFLight.png', // TODO: nova conta
   indexerURL: 'https://54.237.211.33.nip.io/api/rest',
 };
 

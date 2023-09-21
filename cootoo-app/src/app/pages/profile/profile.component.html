@@ -73,6 +73,29 @@
                 </div>
             </div>
             <h3 class="mb-3" *ngIf="walletNfts.length == 0">No owned NFTs</h3>
+
+
+
+            <h3 class="mb-3" *ngIf="walletCoops.length > 0">Coops</h3>
+            <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4">
+                <div class="col pt-0 pb-4" *ngFor="let coopMember of walletCoops">
+                    <a [routerLink]="['../../view', coopMember.coop.address]">
+                        <p>Manager: {{ coopMember.coop.manager.name ? coopMember.coop.manager.name : coopMember.coop.manager.address }}</p>
+                        <p>Coop share: {{ coopMember.coop.coopShare / 10 }}%</p>
+                        <p>Tez received: {{ coopMember.tezReceived / 1000000 }}</p>
+                    </a>
+                    <!-- <div>
+                        Members: 
+                        <p *ngFor="let coopMember of coop.members">
+                            {{ coopMember.member.name ? coopMember.member.name : coopMember.member.address }}
+                        </p>
+                    </div> -->
+                 
+                    
+                    
+                </div>
+            </div>
+            <h3 class="mb-3" *ngIf="walletCoops.length == 0">No coops</h3>
  
     </div>
     

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { TzktService } from 'src/app/services/tzkt.service';
 import { Coop } from 'src/app/models/coop.model';
+import { IndexerService } from 'src/app/services/indexer.service';
 // import { map } from 'rxjs';
 
 @Component({
@@ -13,22 +13,13 @@ export class ExploreCoopsComponent implements OnInit {
   coops: Coop[] = []
 
   constructor(
-    private tzkt: TzktService
+    private indexer: IndexerService
   ){}
 
   async ngOnInit() {
-    (await this.tzkt.getCoopsAddress()).subscribe(res => {
-      console.log(res)
-      res.forEach(coopAddress => {
-        this.tzkt.getCoop(coopAddress).then(res=>res.subscribe(coop => 
-          this.coops.push(coop)
-        ))
-        // coopAddressList.push(orig['originatedContract']['address'])
-      });
-      // this.coops = res
+    (await this.indexer.getAllCoops()).subscribe(coops => {
+      this.coops = coops
+      console.log(coops)
     });
   }
-  // getCoops() {
-  //   this.tzkt.getCoops()
-  // }
 }

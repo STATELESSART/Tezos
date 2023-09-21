@@ -6,15 +6,17 @@
             
                 <mat-card>
 
-                    <a class="stretched-link text-decoration-none" [routerLink]="['../view', coop.contract]"></a>
+                    <a class="stretched-link text-decoration-none" [routerLink]="['../view', coop.address]"></a>
 
-                    <p>Manager: {{ coop.manager }}</p>
-                    <p>Coop share: {{ coop.coop_share / 10 }}%</p>
+                    <p>Manager: {{ coop.manager.name ? coop.manager.name : coop.manager.address }}</p>
+                    <p>Coop share: {{ coop.coopShare / 10 }}%</p>
                     <div>
-                        Members: 
-                        <p *ngFor="let member of coop.members">
-                            {{ member }}
-                        </p>
+                        Members:  
+                        <div *ngFor="let coopMember of coop.members">
+                            <div *ngIf="coopMember.status == 0">
+                                {{ coopMember.member.name ? coopMember.member.name : coopMember.member.address }}
+                            </div>
+                        </div>
                     </div>
                    
                 </mat-card>

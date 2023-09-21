@@ -13,7 +13,7 @@ import { Coop } from 'src/app/models/coop.model';
 export class CreateCoopComponent {
 
   form = this.fb.group({
-    coop_share: new FormControl<number>(0, Validators.required),
+    coopShare: new FormControl<number>(0, Validators.required),
     members: this.fb.array([])
   });
 
@@ -63,9 +63,9 @@ export class CreateCoopComponent {
       // const ascii = this.asciiText
       // const category = this.formValue.category
       console.log(this.formValue)
-      const coopShare = 10 * this.formValue.coop_share
+      const coopShare = 10 * this.formValue.coopShare
       const members: string[] = []
-      this.formValue.members.forEach(member => members.push(member.address))
+      this.formValue.members.forEach(coopMember => members.push(coopMember.member.address))
 
       // let url = this.formValue.url;
       // if (url && url.indexOf('://') === -1) {

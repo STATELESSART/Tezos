@@ -1,65 +1,115 @@
-<p>Manager: {{ coop.manager }}</p>
-<p>Coop share: {{ coop.coop_share / 10 }}%</p>
-<div>
-    Members: 
-    <p *ngFor="let member of coop.members">
-        {{ member }}
-    </p>
-</div>
-
-<form [formGroup]="form" (ngSubmit)="addMembers()">
-
-    <div class="row m-3 m-md-4 justify-content-center">
-  
-      <div class="col-12 col-sm-6 col-md-7 col-lg-7 mb-3">
-  
-        <h3 class="mb-3">
-          Add member
-        </h3> 
-
-        <ng-container formArrayName="members">
-          <ng-container *ngFor="let memberForm of members.controls; let i = index">
-              <div [formGroupName]="i">
-                  <mat-form-field appearance="fill">
-                      <input matInput
-                             formControlName="address"
-                             placeholder="Address">
-                  </mat-form-field>
-                  
-                  <mat-icon class="delete-btn" (click)="deleteMember(i)">
-                      delete_forever</mat-icon>
-                </div>
-            </ng-container>
-        </ng-container>
-      
-        <button mat-mini-fab type='button' (click)="addMemberForm()">
-            <mat-icon class="add-course-btn">add</mat-icon>
-        </button>
-
-        <!-- <mat-form-field class="full-width" appearance="outline">
-            <mat-label>Member address</mat-label>
-            <input matInput type="text" formControlName="member_address" required>
-        </mat-form-field> -->
+<div *ngIf="(coop | async) as coop">
     
-        <button
-            mat-flat-button 
-            color="primary" 
-            type="submit"
-            [disabled]="!form.valid">Add
-        </button>
+    <p>Manager: {{ coop.manager.name ? coop.manager.name : coop.manager.address }}</p>
+    <p>Coop share: {{ coop.coopShare / 10 }}%</p>
+    <div>
+        Members: 
+        <div *ngFor="let coopMember of coop.members">
+            <div *ngIf="coopMember.status == 0">
+                {{ coopMember.member.name ? coopMember.member.name : coopMember.member.address }}
+            </div>
+        </div>
+    </div>
+    
+    <form [formGroup]="form" (ngSubmit)="addMembers()">
+    
+        <div class="row m-3 m-md-4 justify-content-center">
+      
+          <div class="col-12 col-sm-6 col-md-7 col-lg-7 mb-3">
+      
+            <h3 class="mb-3">
+              Add member
+            </h3> 
+    
+            <ng-container formArrayName="members">
+              <ng-container *ngFor="let memberForm of members.controls; let i = index">
+                  <div [formGroupName]="i">
+                      <mat-form-field appearance="fill">
+                          <input matInput
+                                 formControlName="address"
+                                 placeholder="Address">
+                      </mat-form-field>
+                      
+                      <mat-icon class="delete-btn" (click)="deleteMemberFromForm(i)">
+                          delete_forever</mat-icon>
+                    </div>
+                </ng-container>
+            </ng-container>
+          
+            <button mat-mini-fab type='button' (click)="addMemberToForm()">
+                <mat-icon class="add-course-btn">add</mat-icon>
+            </button>
+    
+            <!-- <mat-form-field class="full-width" appearance="outline">
+                <mat-label>Member address</mat-label>
+                <input matInput type="text" formControlName="member_address" required>
+            </mat-form-field> -->
         
- 
-      </div>
+            <button
+                mat-flat-button 
+                color="primary" 
+                type="submit"
+                [disabled]="!form.valid">Add
+            </button>
+            
+     
+          </div>
+    
+      
+        </div>
+      
+    </form>
 
-  
-    </div>
-  
-  </form>
 
-<div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4">
-    <div class="col pt-0 pb-4" *ngFor="let nft of coopNfts">
-        <div *ngIf="nft.swap && nft.swap.objkt_amount > 0"></div>
-        <app-nft-card [nft]="nft"></app-nft-card>
+    <form [formGroup]="deleteForm" (ngSubmit)="deleteMember()">
+    
+        <div class="row m-3 m-md-4 justify-content-center">
+      
+          <div class="col-12 col-sm-6 col-md-7 col-lg-7 mb-3">
+      
+            <h3 class="mb-3">
+              Delete member
+            </h3> 
+    
+            <mat-form-field class="full-width" appearance="outline">
+                <mat-label>Members address</mat-label>
+                <mat-select formControlName="memberAddress" required>
+                    <ng-container *ngFor="let coopMember of coop.members">
+                        <mat-option *ngIf="coopMember.status == 0" [value]="coopMember.member.address">
+                            {{ coopMember.member.name ? coopMember.member.name : coopMember.member.address }}
+                        </mat-option>
+                    </ng-container>
+                </mat-select>
+              </mat-form-field>
+           
+    
+            <!-- <mat-form-field class="full-width" appearance="outline">
+                <mat-label>Member address</mat-label>
+                <input matInput type="text" formControlName="member_address" required>
+            </mat-form-field> -->
+        
+            <button
+                mat-flat-button 
+                color="primary" 
+                type="submit"
+                [disabled]="!deleteForm.valid">Delete
+            </button>
+            
+     
+          </div>
+    
+      
+        </div>
+      
+    </form>
+    
+    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4">
+        <div class="col pt-0 pb-4" *ngFor="let swap of coop.swaps">
+            <div *ngIf="swap.token && swap.amountLeft > 0"></div>
+            <!-- <app-nft-card [nft]="swap.token"></app-nft-card> -->
+            <app-nft-card [swap]="swap" [nft]="swap.token"></app-nft-card>
+        </div>
     </div>
+    
+    
 </div>
-

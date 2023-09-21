@@ -5,7 +5,9 @@ import { Nft } from 'src/app/models/nft.model';
 import { TaquitoService } from 'src/app/services/taquito.service';
 import { TzktService } from 'src/app/services/tzkt.service';
 import { FormControl, FormGroup, Validators, ValidationErrors, ValidatorFn, AbstractControl, FormBuilder, FormArray } from '@angular/forms';
-
+import { IndexerService } from 'src/app/services/indexer.service';
+import { Observable, of } from 'rxjs'
+import { CoopDetail } from 'src/app/models/coop_detail.model';
 
 @Component({
   selector: 'app-view-coop',
@@ -18,19 +20,30 @@ export class ViewCoopComponent implements OnInit {
     members: this.fb.array([])
   });
 
-  formValue: Member[] = []
+  deleteForm = new FormGroup({
+    memberAddress: new FormControl<string>('', Validators.required)
+  });
 
-  coop: Coop = new Coop()
-  coopNfts: Nft[] = []
+  formValue: Member[] = []
+  deleteFormValue: string = ''
+
+  coop: Observable<CoopDetail> = of()
+  // coopNfts: Nft[] = []
+  coopAddress: string = ''
 
   constructor(
     private route: ActivatedRoute,
-    private tzkt: TzktService,
+    // private tzkt: TzktService,
     private taquito: TaquitoService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private indexer: IndexerService
   ){
     this.form.valueChanges.subscribe(_ => {
       this.formValue = this.form.value.members as Member[];
+    });
+
+    this.deleteForm.valueChanges.subscribe(_ => {
+      this.deleteFormValue = this.deleteForm.value.memberAddress as string;
     });
   }
 
@@ -40,7 +53,7 @@ export class ViewCoopComponent implements OnInit {
   }
 
 
-  addMemberForm() {
+  addMemberToForm() {
     const memberForm = this.fb.group({
         address: ['', Validators.required]
     });
@@ -48,7 +61,7 @@ export class ViewCoopComponent implements OnInit {
     this.members.push(memberForm);
   }
 
-  deleteMember(memberIndex: number) {
+  deleteMemberFromForm(memberIndex: number) {
     this.members.removeAt(memberIndex);
   }
 
@@ -56,18 +69,23 @@ export class ViewCoopComponent implements OnInit {
   async ngOnInit() {
 
     this.route.params.subscribe(async (params: Params) => {
-      this.coop.contract = params['id'];
+      this.coopAddress = params['id'];
 
-      (await this.tzkt.getCoop(this.coop.contract)).subscribe(coop => {
-        this.coop = coop
-      });
+      this.coop = (await this.indexer.getCoop(params['id']))
+      // .subscribe(coop => {
+      //   if (coop) {
+      //     this.coop = coop
+      //   }
+      //   console.log(coop)
+        
+      // });
 
-      (await this.tzkt.getCoopNfts(this.coop.contract)).subscribe(nfts => {
-          this.coopNfts = nfts
-      })
+      // (await this.tzkt.getCoopNfts(this.coop.address)).subscribe(nfts => {
+      //     this.coopNfts = nfts
+      // })
     });
 
-    this.addMemberForm()
+    this.addMemberToForm()
 
   }
 
@@ -79,15 +97,15 @@ export class ViewCoopComponent implements OnInit {
         accountInfo = await this.taquito.requestPermission()
       }
 
-      const members_form = this.formValue
+      const membersForm = this.formValue
       const members: string[] = []
-      members_form.forEach(member => members.push(member.address))
+      membersForm.forEach(member => members.push(member.address))
       
-      console.log(members_form)
+      console.log(membersForm)
 
       if (members.length > 0) {
 
-        await this.taquito.addMembers(this.coop.contract, members).then(([fail, errorMessage]) => {
+        await this.taquito.addMembers(this.coopAddress, members).then(([fail, errorMessage]) => {
           if (!fail) {
             const dialogMessage = 'Sucess add'
             console.log(dialogMessage)
@@ -104,6 +122,32 @@ export class ViewCoopComponent implements OnInit {
 
       
 
+    })
+
+  }
+
+
+  deleteMember() {
+
+    this.taquito.accountInfo$.subscribe(async accountInfo => {
+      if (!accountInfo) {
+        accountInfo = await this.taquito.requestPermission()
+      }
+
+      const address = this.deleteFormValue
+       
+
+      await this.taquito.deleteMember(this.coopAddress, address).then(([fail, errorMessage]) => {
+        if (!fail) {
+          const dialogMessage = 'Sucess add'
+          console.log(dialogMessage)
+          // this.successDialog(loadingDialog, dialogMessage)
+        } else {
+          console.log(errorMessage)
+          // this.failDialog(loadingDialog, errorMessage)
+        }
+      })
+      
     })
 
   }

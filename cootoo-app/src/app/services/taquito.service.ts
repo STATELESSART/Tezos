@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { TezosToolkit } from '@taquito/taquito';
+import { OpKind, TezosToolkit } from '@taquito/taquito';
 import { BeaconWallet } from '@taquito/beacon-wallet';
 import { NetworkType, AccountInfo } from '@airgap/beacon-wallet'
 import { BeaconEvent } from '@airgap/beacon-dapp';
@@ -8,7 +8,7 @@ import { State } from 'src/app/app.reducer'
 import { BehaviorSubject, Observable, of } from 'rxjs'
 import { TzktService } from './tzkt.service';
 import { environment } from 'src/environments/environment';
-import { Swap } from '../models/swap.model';
+import { SwapParam } from '../models/swap.model';
  
 @Injectable({
   providedIn: 'root',
@@ -116,30 +116,85 @@ export class TaquitoService {
   
   }
 
-  // async updateOperatorsAndSwap(swap: Swap) {
+
+  async swapv2(swap: SwapParam, walletAddress: string) { //fa2Address, contractAddress, royalties, objkt_amount, xtz_per_objkt, objkt_id, creator, ownerAddress) {
+    // If using proxy: both calls are made through this.state.proxyAddress:
+    // const objktsAddress = this.state.proxyAddress || this.state.objkts;
+    // const marketplaceAddress = this.state.proxyAddress || this.state.v2;
+    // const ownerAddress = this.state.proxyAddress || from;
+
+    const fa2 = await this.taquito.wallet.at(swap.fa2_address)
+    const marketplace = await this.taquito.wallet.at(this.contract)
+
+    const operatorParamsAdd = [{
+      add_operator: {
+          owner: walletAddress,
+          operator: this.contract,
+          token_id: swap.objkt_id
+      }
+    }]
+
+    const operatorParamsRemove = [{
+      remove_operator: {
+          owner: walletAddress,
+          operator: this.contract,
+          token_id: swap.objkt_id
+      }
+    }]
+
+    const list: any[] = [
+      
+      {
+        kind: OpKind.TRANSACTION,
+        ...fa2.methods['update_operators'](
+          operatorParamsAdd
+        ).toTransferParams()
+      },
+      {
+        kind: OpKind.TRANSACTION,
+        ...marketplace.methodsObject['swap'](swap).toTransferParams()
+      },
+      {
+        kind: OpKind.TRANSACTION,
+        ...fa2.methods['update_operators'](
+          operatorParamsRemove
+        ).toTransferParams()
+      },
+    ]
+
+    try{
+      return await this.taquito.wallet.batch(list).send().then((op: any) => {
+        return op.confirmation(this.numBlocks).then(async () => {
+          return [false, 'success']
+        })
+      })
+    } catch (e) {
+      const fail = true
+      return [fail, e]
+    }
+}
+
+
+  // async updateOperatorFA2(swap: SwapParam, walletAddress: string) {
 
   //   this.taquito.setProvider({ wallet: this.wallet });
 
   //   const operatorParams = [{
   //     add_operator: {
-  //         owner: this.wallet.getPKH(),
+  //         owner: walletAddress,
   //         operator: this.contract,
   //         token_id: swap.objkt_id
   //     }
   //   }]
 
-  //   const dappContract = await this.taquito.wallet.at(this.contract);
-  //   const FA2Contract = await this.taquito.wallet.at(swap.fa2_address);
-
   //   try {
-  //     return await this.taquito.wallet.batch()
-  //     .withContractCall(FA2Contract.methods.update_operators(
-  //       operatorParams
-  //     ))
-  //     .withContractCall(dappContract.methods.mint())
-  //     .send()
-  //     .then((op: any) => {
-  //       return op.confirmation(this.numBlocks+1).then(async () => {
+  //     return await this.taquito.wallet.at(swap.fa2_address)
+  //       .then((c: any) => c.methodsObject.update_operators(
+  //         operatorParams
+  //         )
+  //         .send()
+  //     ).then((op: any) => {
+  //       return op.confirmation(this.numBlocks).then(async () => {
   //         return [false, 'success']
   //       })
   //     })
@@ -152,62 +207,30 @@ export class TaquitoService {
   // }
 
 
-  async updateOperatorFA2(swap: Swap, walletAddress: string) {
-
-    this.taquito.setProvider({ wallet: this.wallet });
-
-    const operatorParams = [{
-      add_operator: {
-          owner: walletAddress,
-          operator: this.contract,
-          token_id: swap.objkt_id
-      }
-    }]
-
-    try {
-      return await this.taquito.wallet.at(swap.fa2_address)
-        .then((c: any) => c.methodsObject.update_operators(
-          operatorParams
-          )
-          .send()
-      ).then((op: any) => {
-        return op.confirmation(this.numBlocks).then(async () => {
-          return [false, 'success']
-        })
-      })
-
-    } catch (e) {
-      const fail = true
-      return [fail, e]
-    }
-
-  }
-
-
   // async swap(coop_address: string, creator: string, fa2_address: string, 
   //     objkt_id: number, objkt_amount: number, xtz_per_objkt: number, royalties: number) {
-  async swap(swap: Swap) {
+  // async swap(swap: SwapParam) {
 
-    this.taquito.setProvider({ wallet: this.wallet });
+  //   this.taquito.setProvider({ wallet: this.wallet });
 
-    try {
-      return await this.taquito.wallet.at(this.contract)
-        .then((c: any) => c.methodsObject.swap(
-          swap
-          )
-          .send({ amount: 0 })
-      ).then((op: any) => {
-        return op.confirmation(this.numBlocks).then(async () => {
-          return [false, 'success']
-        })
-      })
+  //   try {
+  //     return await this.taquito.wallet.at(this.contract)
+  //       .then((c: any) => c.methodsObject.swap(
+  //         swap
+  //         )
+  //         .send({ amount: 0 })
+  //     ).then((op: any) => {
+  //       return op.confirmation(this.numBlocks).then(async () => {
+  //         return [false, 'success']
+  //       })
+  //     })
 
-    } catch (e) {
-      const fail = true
-      return [fail, e]
-    }
+  //   } catch (e) {
+  //     const fail = true
+  //     return [fail, e]
+  //   }
   
-  }
+  // }
 
 
   async collect(swapId: number, swapAmount: number) {
@@ -321,23 +344,6 @@ export class TaquitoService {
   // }
 
 
-  // async closeCampaign(address: string) {
 
-  //   this.taquito.setProvider({ wallet: this.wallet });
-
-  //   try {
-  //     return await this.taquito.wallet.at(address)
-  //       .then((c: any) => c.methods.close_campaign()
-  //         .send()
-  //     ).then((op: any) => {
-  //       return op.confirmation(this.numBlocks).then(() => {
-  //         return [false, 'success']
-  //       })
-  //     })
-  //   } catch (e) {
-  //     const fail = true
-  //     return [fail, e]
-  //   }
-  // }
  
 }

@@ -6,8 +6,9 @@ import { Observable, map, of } from 'rxjs';
 import { FormControl, FormGroup, Validators, ValidationErrors, ValidatorFn, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ActivatedRoute, Params } from '@angular/router';
-import { Swap } from 'src/app/models/swap.model';
+import { Swap, SwapParam } from 'src/app/models/swap.model';
 import { Nft } from 'src/app/models/nft.model';
+import { IndexerService } from 'src/app/services/indexer.service';
 
 @Component({
   selector: 'app-swap-nft',
@@ -26,69 +27,59 @@ export class SwapNftComponent implements OnInit {
     royalties: new FormControl<number>(0, Validators.required),
   });
 
-  formValue: Swap = new Swap()
+  formValue: SwapParam = new SwapParam()
 
   constructor(
     private tzkt: TzktService,
     private taquito: TaquitoService,
     private route: ActivatedRoute,
+    private indexer: IndexerService
     // public router: Router,
   ){
     this.form.valueChanges.subscribe(_ => {
-      this.formValue = this.form.value as Swap;
+      this.formValue = this.form.value as SwapParam;
     });
   }
 
-  coops: Coop[] = []
+  coopsAddress: string[] = []
   // nft: Nft = new Nft()
 
   nft: Observable<Nft> = of(new Nft())
-  swapParam: Swap = new Swap()
+  swapParam: SwapParam = new SwapParam()
 
 
   async ngOnInit() {
 
-    this.route.params.subscribe(async (params: Params) => {
-      
+    this.route.params.subscribe(async (params: Params) => {    
 
       (await this.getNft(params['fa2_address'], params['objkt_id'])).subscribe(nft => {
         this.swapParam.objkt_id = parseInt(params['objkt_id']);
         this.swapParam.fa2_address = params['fa2_address'];
-        this.swapParam.creator = nft.firstMinter.address;
+        this.swapParam.creator = nft.creator.address;
         console.log(this.swapParam)
       })
       
     });
     
-    (await this.tzkt.getCoopsAddress()).subscribe(res => {
-      console.log(res)
-      res.forEach(coopAddress => {
-        this.tzkt.getCoop(coopAddress).then(res=>res.subscribe(coop => 
-          this.coops.push(coop)
-        ))
-        // coopAddressList.push(orig['originatedContract']['address'])
-      });
-      // this.coops = res
+    // get coops which the user belongs to
+    this.taquito.accountInfo$.subscribe(async accountInfo => {
+      if (!accountInfo) {
+        accountInfo = await this.taquito.requestPermission()
+      }
+
+      if (accountInfo) {
+        const address = accountInfo.address;
+
+        (await this.indexer.getMemberCoops(address)).subscribe(memberCoops => {
+          memberCoops.forEach(member => {
+            this.coopsAddress.push(member.coop.address)
+          });
+        })
+      }
+
     });
 
 
-    // this.taquito.accountInfo$.subscribe(async (accountInfo) => {
-    //   if (!accountInfo) {
-    //     await this.taquito.requestPermission()
-    //   }
-
-    //   (await this.tzkt.getWalletNfts().subscribe(res => {
-    //     console.log(res)
-    //     res.forEach(coopAddress => {
-    //       this.tzkt.getCoop(coopAddress).then(res=>res.subscribe(coop => 
-    //         this.coops.push(coop)
-    //       ))
-    //       // coopAddressList.push(orig['originatedContract']['address'])
-    //     });
-    //     // this.coops = res
-    //   });
-
-    // })
   }
 
 
@@ -102,8 +93,6 @@ export class SwapNftComponent implements OnInit {
       if (accountInfo) {
         const address = accountInfo.address
       
-      
-
         // const loadingDialog = this.openDialog(false, false, '', true)
 
         // const swap = this.formValue
@@ -115,18 +104,9 @@ export class SwapNftComponent implements OnInit {
         this.swapParam.xtz_per_objkt = 1000000 * this.formValue.xtz_per_objkt
         this.swapParam.royalties = 10 * this.formValue.royalties
 
-        // let url = this.formValue.url;
-        // if (url && url.indexOf('://') === -1) {
-        //   url = `https://${url}`;
-        // }
-        // const finalUrl = url ? new URL(url).href : ''
-
-        console.log(this.swapParam)
-        console.log(address)
-
-        await this.taquito.updateOperatorFA2(this.swapParam, address).then(([fail, errorMessage]) => {
+        await this.taquito.swapv2(this.swapParam, address).then(([fail, errorMessage]) => {
           if (!fail) {
-            const dialogMessage = 'Update operator success'
+            const dialogMessage = 'swap success'
             console.log(dialogMessage)
             // this.successDialog(loadingDialog, dialogMessage)
           } else {
@@ -135,16 +115,27 @@ export class SwapNftComponent implements OnInit {
           }
         })
 
-        await this.taquito.swap(this.swapParam).then(([fail, errorMessage]) => {
-          if (!fail) {
-            const dialogMessage = 'Sucess swap'
-            console.log(dialogMessage)
-            // this.successDialog(loadingDialog, dialogMessage)
-          } else {
-            console.log(errorMessage)
-            // this.failDialog(loadingDialog, errorMessage)
-          }
-        })
+        // await this.taquito.updateOperatorFA2(this.swapParam, address).then(([fail, errorMessage]) => {
+        //   if (!fail) {
+        //     const dialogMessage = 'Update operator success'
+        //     console.log(dialogMessage)
+        //     // this.successDialog(loadingDialog, dialogMessage)
+        //   } else {
+        //     console.log(errorMessage)
+        //     // this.failDialog(loadingDialog, errorMessage)
+        //   }
+        // })
+
+        // await this.taquito.swap(this.swapParam).then(([fail, errorMessage]) => {
+        //   if (!fail) {
+        //     const dialogMessage = 'Sucess swap'
+        //     console.log(dialogMessage)
+        //     // this.successDialog(loadingDialog, dialogMessage)
+        //   } else {
+        //     console.log(errorMessage)
+        //     // this.failDialog(loadingDialog, errorMessage)
+        //   }
+        // })
 
       }
 
@@ -158,12 +149,10 @@ export class SwapNftComponent implements OnInit {
     //   console.log(nft)
     //   this.nft = nft
     // })
+
+    // TODO: fetch from indexer first?
     return this.nft = (await this.tzkt.getNft(fa2_address, objkt_id))
-    // this.nft = nft
   }
 
-  // onBookAdded(eventData:  Nft) {
-  //   this.nft = eventData
-  // }
 
 }
