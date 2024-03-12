@@ -26,7 +26,7 @@ Error message codes:
 """
 
 import smartpy as sp
-from templates import fa2_lib as fa2
+from smartpy.templates import fa2_lib as fa2
 
 # Import FA2 template
 main = fa2.main
@@ -66,14 +66,327 @@ def m():
             main.Admin.__init__(self, administrator)
 
 
-    class Coop(sp.Contract):
+    # class Coop(sp.Contract):
         
-        def __init__(self, manager, coop_share, members):
-            self.data.manager = sp.cast(manager, sp.address)
+    #     def __init__(self, manager, metadata, coop_share, members, tez_limit):
+    #         # self.data.coop_name = sp.cast(coop_name, sp.string)
+    #         # self.data.coop_description = sp.cast(coop_description, sp.string)
+    #         self.data.manager = sp.cast(manager, sp.address)
+    #         self.data.members = sp.cast(members, sp.set[sp.address])
+    #         self.data.metadata=sp.cast(metadata, sp.big_map[sp.string, sp.bytes])
+    #         self.data.coop_share = sp.cast(coop_share, sp.nat)
+    #         self.data.proposed_manager = sp.cast(None, sp.option[sp.address])
+    #         self.data.tez_limit = sp.cast(tez_limit, sp.mutez)
+            
+
+        # @sp.private(with_storage="read-only")
+        # def check_is_manager(self):
+        #     """Checks that the address that called the entry point is the contract
+        #     manager.
+    
+        #     """
+        #     return sp.sender == self.data.manager
+
+        # @sp.private(with_storage="read-only")
+        # def check_no_tez_transfer(self):
+        #     """Checks that no tez were transferred in the operation.
+    
+        #     """
+        #     assert sp.amount == sp.tez(0), "MP_TEZ_TRANSFER"
+
+        # @sp.entrypoint
+        # def default(self, unit):
+        #     """Default entrypoint that allows receiving tez transfers in the same
+        #     way as one would do with a normal tz wallet.
+    
+        #     """
+        #     # Define the input parameter data type
+        #     sp.cast(unit, sp.unit)
+    
+        #     # # Do nothing, just receive tez
+        #     # pass
+
+        #     if sp.balance > self.data.tez_limit:
+        #         c = sp.contract(sp.unit, sp.self_address(), entrypoint="distribute").unwrap_some()
+        #         sp.transfer((), sp.mutez(0), c)
+                
+            
+
+        # @sp.entrypoint
+        # def distribute(self):
+        #     """Distribute funds that are sent to the contract
+    
+        #     """
+        #     # Check that no tez have been transferred
+        #     self.check_no_tez_transfer()
+
+        #     # Check that the contract balance is more than 0
+        #     assert sp.balance > sp.mutez(0)
+
+        #     # N = len(self.data.members)
+        #     # amount = sp.split_tokens(sp.balance, 1, N) 
+        #     # for member in self.data.members.elements():
+        #     #     sp.send(member, amount)
+
+
+        #     # Distribute the funds
+        #     transfer_amount = sp.mutez(0)
+        #     transferred_amount = sp.mutez(0)
+        #     counter = len(self.data.members)
+        #     amount = sp.split_tokens(sp.balance, 1, counter)
+        #     for member in self.data.members.elements():
+        #         if counter > 1:
+        #             transfer_amount = amount
+        #         else:
+        #             transfer_amount = sp.balance - transferred_amount
+    
+        #         # Transfer the mutez to the collaborator
+        #         sp.send(member, transfer_amount)
+    
+        #         # Update the counters
+        #         transferred_amount += transfer_amount
+        #         counter = sp.as_nat(counter - 1)
+                
+            
+        # # ADD MEMBERS TO THE COOP - only coop manager
+        # @sp.entrypoint
+        # def add_members(self, address_list):
+
+        #     sp.cast(address_list, sp.list[sp.address])
+        #     assert self.check_is_manager(), "MP_NOT_MANAGER"
+
+        #     # Check that no tez have been transferred
+        #     self.check_no_tez_transfer()
+
+        #     for address in address_list:
+        #         assert not self.data.members.contains(address), "ALREADY A MEMBER"
+        #         self.data.members.add(address)
+
+        # # DELETE MEMBERS FROM THE COOP - only coop manager and member
+        # @sp.entrypoint
+        # def delete_member(self, address):
+
+        #     sp.cast(address, sp.address)
+
+        #     # Only manager or self member can call
+        #     assert self.check_is_manager() or sp.sender == address, "NOT MANAGER OR SELF"
+            
+        #     # Manager can't be deleted
+        #     assert not self.data.manager == address, "MANAGER CAN'T BE REMOVED"
+
+        #     # Check that the sender belongs to the coop
+        #     assert self.data.members.contains(address), "NOT A MEMBER"
+            
+        #     # Check that no tez have been transferred
+        #     self.check_no_tez_transfer()
+            
+        #     self.data.members.remove(address)
+
+        # @sp.entrypoint
+        # def change_coop_share(self, new_share):
+
+        #     sp.cast(new_share, sp.nat)
+        #     assert self.check_is_manager(), "MP_NOT_MANAGER"
+    
+        #     # Check that no tez have been transferred
+        #     self.check_no_tez_transfer()
+
+        #     self.data.coop_share = new_share
+
+        # @sp.onchain_view()
+        # def get_members(self):
+        #     """Returns the current members of the coop
+    
+        #     Returns
+        #     -------
+        #     List of addresses
+    
+        #     """
+
+        #     return self.data.members
+
+        # @sp.onchain_view()
+        # def get_coop_share(self):
+        #     """Returns the current coop_share
+    
+        #     Returns
+        #     -------
+        #     Coop share
+    
+        #     """
+
+        #     return self.data.coop_share
+
+        # @sp.entrypoint
+        # def transfer_manager(self, proposed_manager):
+        #     """Proposes to transfer the marketplace manager to another address.
+    
+        #     Parameters
+        #     ----------
+        #     proposed_manager: sp.TAddress
+        #         The address of the proposed new marketplace manager. It could be a
+        #         tz or KT address.
+    
+        #     """
+        #     # Define the input parameter data type
+        #     sp.cast(proposed_manager, sp.address)
+
+        #     # Check that the proposed manager belongs to the coop
+        #     assert self.data.members.contains(proposed_manager), "NOT A MEMBER"
+    
+        #     # Check that the manager executed the entry point
+        #     assert self.check_is_manager(), "MP_NOT_MANAGER"
+    
+        #     # Check that no tez have been transferred
+        #     self.check_no_tez_transfer()
+    
+        #     # Set the new proposed manager address
+        #     self.data.proposed_manager = sp.Some(proposed_manager)
+    
+        # @sp.entrypoint
+        # def accept_manager(self):
+        #     """The proposed manager accepts the marketplace manager
+        #     responsabilities.
+    
+        #     """
+        #     # Check that there is a proposed manager
+        #     assert self.data.proposed_manager.is_some(), "MP_NO_NEW_MANAGER"
+    
+        #     # Check that the proposed manager executed the entry point
+        #     assert sp.sender == self.data.proposed_manager.unwrap_some(), "MP_NOT_PROPOSED_MANAGER"
+    
+        #     # Check that no tez have been transferred
+        #     self.check_no_tez_transfer()
+    
+        #     # Set the new manager address
+        #     self.data.manager = sp.sender
+    
+        #     # Reset the proposed manager value
+        #     self.data.proposed_manager = None
+
+        
+        # @sp.entrypoint
+        # def update_name(self, new_name):
+        #     """Updates the contract name.
+            
+        #     """
+        #     # Define the input parameter data type
+        #     sp.cast(new_name, sp.string)
+
+        #     # check that on-chain information is limited
+        #     assert sp.len(new_name) <= 50
+        #     # Check that the manager executed the entry point
+        #     assert self.check_is_manager(), "MP_NOT_MANAGER"
+        #     # Check that no tez have been transferred
+        #     self.check_no_tez_transfer()
+    
+        #     # Update the contract name
+        #     self.data.coop_name = new_name
+
+
+        # @sp.entrypoint
+        # def update_description(self, new_description):
+        #     """Updates the contract name.
+            
+        #     """
+        #     # Define the input parameter data type
+        #     sp.cast(new_description, sp.string)
+
+        #     # check that on-chain information is limited
+        #     assert sp.len(new_description) <= 1000
+        #     # Check that the manager executed the entry point
+        #     assert self.check_is_manager(), "MP_NOT_MANAGER"
+        #     # Check that no tez have been transferred
+        #     self.check_no_tez_transfer()
+    
+        #     # Update the contract name
+        #     self.data.coop_description = new_description
+
+        # @sp.entrypoint
+        # def update_metadata(self, params):
+        #     """Updates the contract metadata.
+    
+        #     Parameters
+        #     ----------
+        #     params: sp.TRecord
+        #         The updated metadata parameters:
+        #         - key: the metadata big map key to update.
+        #         - value: the IPFS path to the json file with the updated metadata.
+    
+        #     """
+        #     # Define the input parameter data type
+        #     sp.cast(params, sp.big_map[sp.string, sp.bytes])
+    
+        #     # Check that the manager executed the entry point
+        #     assert self.check_is_manager(), "MP_NOT_MANAGER"
+    
+        #     # Check that no tez have been transferred
+        #     self.check_no_tez_transfer()
+    
+        #     # Update the contract metadata
+        #     self.data.metadata = params
+        
+            
+            
+    class Coop(sp.Contract):
+        """This contract implements the first version of the Teia Community
+        marketplace contract.
+
+        Adds coops
+    
+        """
+    
+        def __init__(self, manager, metadata, coop_share, members, tez_limit, factory_address):
+            """Initializes the contract.
+    
+            Parameters
+            ----------
+            manager: sp.TAddress
+                The initial marketplace manager address. It could be a tz or KT
+                address.
+            metadata: sp.TBigMap(sp.TString, sp.TBytes)
+                The contract metadata big map. It should contain the IPFS path to
+                the contract metadata json file.
+            coop_share: sp.TNat
+                The coop share in per mille units (25 = 2.5%).
+    
+            """
+
+            # Initialize the contract storage
+
+            # The contract manager. It could be a tz or KT address.
+            self.data.manager=sp.cast(manager, sp.address)
+            # The contract metadata bigmap.
+            # The metadata is stored as a json file in IPFS and the big map
+            # contains the IPFS path.
+            self.data.metadata=sp.cast(metadata, sp.big_map[sp.string, sp.bytes])
+            # The big map with the swaps information.
+            self.data.swaps=sp.cast(sp.big_map(), sp.big_map[sp.nat, SWAP_TYPE])
+            # # The marketplace fee taken for each collect operation in per mille
+            # # units (25 = 2.5%).
+            # self.data.fee=sp.cast(fee, sp.nat)
+            # # The address that will receive the marketplace fees. It could be
+            # # a tz or KT address.
+            # self.data.fee_recipient=sp.cast(manager, sp.address)
+            # The swaps bigmap counter. It tracks the total number of swaps in
+            # the swaps big map.
+            self.data.counter=sp.cast(0, sp.nat)
+            # The proposed new manager address. Only set when a new manager is
+            # proposed.
+            self.data.proposed_manager=sp.cast(None, sp.option[sp.address])
+            # A flag that indicates if the marketplace swaps are paused or not.
+            self.data.swaps_paused=sp.cast(False, sp.bool)
+            # A flag that indicates if the marketplace collects are paused or not.
+            self.data.collects_paused=sp.cast(False, sp.bool)
+            # # List of originated coops
+            # self.data.coops=sp.cast(sp.big_map(), sp.big_map[sp.address, sp.unit])
+
+            # coop storage
             self.data.members = sp.cast(members, sp.set[sp.address])
             self.data.coop_share = sp.cast(coop_share, sp.nat)
-            self.data.proposed_manager = sp.cast(None, sp.option[sp.address])
-            
+            self.data.tez_limit = sp.cast(tez_limit, sp.mutez)
+            self.data.factory_address = sp.cast(factory_address, sp.address)
+
 
         @sp.private(with_storage="read-only")
         def check_is_manager(self):
@@ -90,19 +403,62 @@ def m():
             """
             assert sp.amount == sp.tez(0), "MP_TEZ_TRANSFER"
 
+
         @sp.entrypoint
-        def default(self):
+        def default(self, unit):
+            """Default entrypoint that allows receiving tez transfers in the same
+            way as one would do with a normal tz wallet.
+    
+            """
+            # Define the input parameter data type
+            sp.cast(unit, sp.unit)
+    
+            # # Do nothing, just receive tez
+            # pass
+
+            if sp.balance > self.data.tez_limit:
+                c = sp.contract(sp.unit, sp.self_address(), entrypoint="distribute").unwrap_some()
+                sp.transfer((), sp.mutez(0), c)
+                
+            
+
+        @sp.entrypoint
+        def distribute(self):
             """Distribute funds that are sent to the contract
     
             """
-            assert sp.amount > sp.mutez(0)
+            # Check that no tez have been transferred
+            self.check_no_tez_transfer()
 
-            N = len(self.data.members)
-            amount = sp.split_tokens(sp.amount, 1, N) 
+            # Check that the contract balance is more than 0
+            assert sp.balance > sp.mutez(0)
+
+            # N = len(self.data.members)
+            # amount = sp.split_tokens(sp.balance, 1, N) 
+            # for member in self.data.members.elements():
+            #     sp.send(member, amount)
+
+
+            # Distribute the funds
+            transfer_amount = sp.mutez(0)
+            transferred_amount = sp.mutez(0)
+            counter = len(self.data.members)
+            amount = sp.split_tokens(sp.balance, 1, counter)
             for member in self.data.members.elements():
-                sp.send(member, amount)
+                if counter > 1:
+                    transfer_amount = amount
+                else:
+                    transfer_amount = sp.balance - transferred_amount
+    
+                # Transfer the mutez to the collaborator
+                sp.send(member, transfer_amount)
+    
+                # Update the counters
+                transferred_amount += transfer_amount
+                counter = sp.as_nat(counter - 1)
+                
             
-        # ADD MEMBERS TO THE COOP - only coop admin
+        # ADD MEMBERS TO THE COOP - only coop manager
         @sp.entrypoint
         def add_members(self, address_list):
 
@@ -116,17 +472,20 @@ def m():
                 assert not self.data.members.contains(address), "ALREADY A MEMBER"
                 self.data.members.add(address)
 
-        # DELETE MEMBERS FROM THE COOP - only coop admin and member
+        # DELETE MEMBERS FROM THE COOP - only coop manager and member
         @sp.entrypoint
         def delete_member(self, address):
 
             sp.cast(address, sp.address)
 
-            # Check that the member belongs to the coop
-            assert self.data.members.contains(address), "NOT A MEMBER"
-            
             # Only manager or self member can call
-            assert self.check_is_manager() or sp.sender == address, "NOT ADMIN OR SELF"
+            assert self.check_is_manager() or sp.sender == address, "NOT MANAGER OR SELF"
+            
+            # Manager can't be deleted
+            assert not self.data.manager == address, "MANAGER CAN'T BE REMOVED"
+
+            # Check that the sender belongs to the coop
+            assert self.data.members.contains(address), "NOT A MEMBER"
             
             # Check that no tez have been transferred
             self.check_no_tez_transfer()
@@ -134,7 +493,7 @@ def m():
             self.data.members.remove(address)
 
         @sp.entrypoint
-        def change_coop_share(self, new_share):
+        def update_coop_share(self, new_share):
 
             sp.cast(new_share, sp.nat)
             assert self.check_is_manager(), "MP_NOT_MANAGER"
@@ -168,153 +527,41 @@ def m():
 
             return self.data.coop_share
 
-        @sp.entrypoint
-        def transfer_manager(self, proposed_manager):
-            """Proposes to transfer the marketplace manager to another address.
-    
-            Parameters
-            ----------
-            proposed_manager: sp.TAddress
-                The address of the proposed new marketplace manager. It could be a
-                tz or KT address.
-    
-            """
-            # Define the input parameter data type
-            sp.cast(proposed_manager, sp.address)
+        # @sp.entrypoint
+        # def create_coop(self, params):
 
-            # Check that the proposed manager belongs to the coop
-            assert self.data.members.contains(proposed_manager), "NOT A MEMBER"
-    
-            # Check that the manager executed the entry point
-            assert self.check_is_manager(), "MP_NOT_MANAGER"
-    
-            # Check that no tez have been transferred
-            self.check_no_tez_transfer()
-    
-            # Set the new proposed manager address
-            self.data.proposed_manager = sp.Some(proposed_manager)
-    
-        @sp.entrypoint
-        def accept_manager(self):
-            """The proposed manager accepts the marketplace manager
-            responsabilities.
-    
-            """
-            # Check that there is a proposed manager
-            assert self.data.proposed_manager.is_some(), "MP_NO_NEW_MANAGER"
-    
-            # Check that the proposed manager executed the entry point
-            assert sp.sender == self.data.proposed_manager.unwrap_some(), "MP_NOT_PROPOSED_MANAGER"
-    
-            # Check that no tez have been transferred
-            self.check_no_tez_transfer()
-    
-            # Set the new manager address
-            self.data.manager = sp.sender
-    
-            # Reset the proposed manager value
-            self.data.proposed_manager = None
-            
-            
-    class Marketplace(sp.Contract):
-        """This contract implements the first version of the Teia Community
-        marketplace contract.
-    
-        """
-    
-        def __init__(self, manager, metadata, allowed_fa2s, fee):
-            """Initializes the contract.
-    
-            Parameters
-            ----------
-            manager: sp.TAddress
-                The initial marketplace manager address. It could be a tz or KT
-                address.
-            metadata: sp.TBigMap(sp.TString, sp.TBytes)
-                The contract metadata big map. It should contain the IPFS path to
-                the contract metadata json file.
-            allowed_fa2s: sp.TBigMap(sp.TAddress, sp.TUnit)
-                A big map with the list FA2 token addresses that can be traded (or
-                not) in the marketplace.
-            fee: sp.TNat
-                The marketplace fee in per mille units (25 = 2.5%).
-    
-            """
+        #     sp.cast(params, sp.record(
+        #         # coop_name = sp.string,
+        #         # coop_description = sp.string,
+        #         metadata = sp.big_map[sp.string, sp.bytes],
+        #         coop_share = sp.nat,
+        #         members = sp.set[sp.address],
+        #         tez_limit = sp.mutez
+        #     ))
 
-            # Initialize the contract storage
-
-            # The contract manager. It could be a tz or KT address.
-            self.data.manager=sp.cast(manager, sp.address)
-            # The contract metadata bigmap.
-            # The metadata is stored as a json file in IPFS and the big map
-            # contains the IPFS path.
-            self.data.metadata=sp.cast(metadata, sp.big_map[sp.string, sp.bytes])
-            # The big map with the FA2 token addresses that can be traded in the
-            # marketplace.
-            self.data.allowed_fa2s=sp.cast(allowed_fa2s, sp.big_map[sp.address, sp.unit])
-            # The big map with the swaps information.
-            self.data.swaps=sp.cast(sp.big_map(), sp.big_map[sp.nat, SWAP_TYPE])
-            # The marketplace fee taken for each collect operation in per mille
-            # units (25 = 2.5%).
-            self.data.fee=sp.cast(fee, sp.nat)
-            # The address that will receive the marketplace fees. It could be
-            # a tz or KT address.
-            self.data.fee_recipient=sp.cast(manager, sp.address)
-            # The swaps bigmap counter. It tracks the total number of swaps in
-            # the swaps big map.
-            self.data.counter=sp.cast(0, sp.nat)
-            # The proposed new manager address. Only set when a new manager is
-            # proposed.
-            self.data.proposed_manager=sp.cast(None, sp.option[sp.address])
-            # A flag that indicates if the marketplace swaps are paused or not.
-            self.data.swaps_paused=sp.cast(False, sp.bool)
-            # A flag that indicates if the marketplace collects are paused or not.
-            self.data.collects_paused=sp.cast(False, sp.bool)
-            # List of originated coops
-            self.data.coops=sp.cast(sp.big_map(), sp.big_map[sp.address, sp.unit])
-
-
-        @sp.private(with_storage="read-only")
-        def check_is_manager(self):
-            """Checks that the address that called the entry point is the contract
-            manager.
+        #     # check that on-chain information is limited
+        #     # assert sp.len(params.coop_name) <= 50
+        #     # assert sp.len(params.coop_description) <= 1000
     
-            """
-            assert sp.sender == self.data.manager, "MP_NOT_MANAGER"
+        #     # Check that no tez have been transferred
+        #     self.check_no_tez_transfer()
 
-        @sp.private(with_storage="read-only")
-        def check_no_tez_transfer(self):
-            """Checks that no tez were transferred in the operation.
-    
-            """
-            assert sp.amount == sp.tez(0), "MP_TEZ_TRANSFER"
+        #     members = params.members
+        #     members.add(sp.sender)
 
+        #     s = sp.record(
+        #         # coop_name = params.coop_name,
+        #         # coop_description = params.coop_description,
+        #         metadata = params.metadata,
+        #         manager = sp.sender, 
+        #         proposed_manager = None,
+        #         members = members,
+        #         coop_share = params.coop_share,
+        #         tez_limit = params.tez_limit
+        #     )
 
-        @sp.entrypoint
-        def create_coop(self, params):
-
-            sp.cast(params, sp.record(
-                coop_share = sp.nat,
-                members = sp.set[sp.address]
-            ))
-            #sp.cast(coop_share, sp.nat)
-            #sp.cast(members, sp.set[sp.address])
-    
-            # Check that no tez have been transferred
-            self.check_no_tez_transfer()
-
-            members = params.members
-            members.add(sp.sender)
-
-            s = sp.record(
-                manager = sp.sender, 
-                proposed_manager = None,
-                members = members,
-                coop_share = params.coop_share
-            )
-
-            contract_address = sp.create_contract(Coop, None, sp.tez(0), s)
-            self.data.coops[contract_address] = ()
+        #     contract_address = sp.create_contract(Coop, None, sp.tez(0), s)
+        #     self.data.coops[contract_address] = ()
             
 
         @sp.entrypoint
@@ -355,9 +602,6 @@ def m():
     
             # Check that no tez have been transferred
             self.check_no_tez_transfer()
-    
-            # Check that the token is one of the allowed tokens to trade
-            assert self.data.allowed_fa2s.contains(params.fa2_address), "MP_FA2_NOT_ALLOWED"
     
             # Check that at least one edition will be swapped
             assert params.objkt_amount > 0, "MP_NO_SWAPPED_EDITIONS"
@@ -430,28 +674,33 @@ def m():
                 # Send the royalties to the NFT creator
                 royalties_amount = sp.split_tokens(
                         swap.xtz_per_objkt, swap.royalties, 1000)
-    
+
                 if royalties_amount > sp.mutez(0):
                     sp.send(swap.creator, royalties_amount)
     
-                # Send the management fees
-                fee_amount = sp.split_tokens(
-                        swap.xtz_per_objkt, self.data.fee, 1000)
-    
-                if fee_amount > sp.mutez(0):
-                    sp.send(self.data.fee_recipient, fee_amount)
+                # Send the management fees !TODO
+                factory_share = sp.view("get_factory_share", self.data.factory_address, (), sp.nat).unwrap_some()
+                factory_amount = sp.split_tokens(
+                        swap.xtz_per_objkt, factory_share, 1000)
 
-                # Send the coop fee
-                coop_share = sp.view("get_coop_share", swap.coop_address, (), sp.nat).unwrap_some()
-                coop_amount = sp.split_tokens(
-                        swap.xtz_per_objkt, coop_share, 1000)
+                if factory_amount > sp.mutez(0):
+                    factory_share_recipient = sp.view("get_factory_share_recipient", self.data.factory_address, (), sp.address).unwrap_some()
+                    sp.send(factory_share_recipient, factory_amount)
 
-                if fee_amount > sp.mutez(0):
-                    sp.send(swap.coop_address, coop_amount)
-                    
+                # get coop amount to keep in contract
+                coop_share_amount = sp.split_tokens(
+                        swap.xtz_per_objkt, self.data.coop_share, 1000)
+
+                # if coop_share_amount > sp.mutez(0):
+                #     sp.send(self.data.fee_recipient, fee_amount)
+
                 # Send what is left to the swap issuer
-                sp.send(swap.issuer, sp.amount - royalties_amount - fee_amount - coop_amount)
-    
+                sp.send(swap.issuer, sp.amount - royalties_amount - factory_amount - coop_share_amount)
+
+                if coop_share_amount > self.data.tez_limit:
+                    c = sp.contract(sp.unit, sp.self_address(), entrypoint="distribute").unwrap_some()
+                    sp.transfer((), sp.mutez(0), c)
+                    
             # Transfer the token edition to the collector
             c = sp.contract(t.transfer_params, swap.fa2_address, entrypoint="transfer").unwrap_some()
             sp.transfer(
@@ -510,53 +759,53 @@ def m():
             # Delete the swap entry in the the swaps big map
             del self.data.swaps[swap_id]
     
-        @sp.entrypoint
-        def update_fee(self, new_fee):
-            """Updates the marketplace management fees.
+        # @sp.entrypoint
+        # def update_fee(self, new_fee):
+        #     """Updates the marketplace management fees.
     
-            Parameters
-            ----------
-            new_fee: sp.TNat
-                The new marketplace fee in per mille units (25 = 2.5%).
+        #     Parameters
+        #     ----------
+        #     new_fee: sp.TNat
+        #         The new marketplace fee in per mille units (25 = 2.5%).
     
-            """
-            # Define the input parameter data type
-            sp.cast(new_fee, sp.nat)
+        #     """
+        #     # Define the input parameter data type
+        #     sp.cast(new_fee, sp.nat)
     
-            # Check that the manager executed the entry point
-            self.check_is_manager()
+        #     # Check that the manager executed the entry point
+        #     assert self.check_is_manager(), "MP_NOT_MANAGER"
     
-            # Check that no tez have been transferred
-            self.check_no_tez_transfer()
+        #     # Check that no tez have been transferred
+        #     self.check_no_tez_transfer()
     
-            # Check that the new fee is not larger than 25%
-            assert new_fee <= 250, "MP_WRONG_FEES"
+        #     # Check that the new fee is not larger than 25%
+        #     assert new_fee <= 250, "MP_WRONG_FEES"
     
-            # Set the new management fee
-            self.data.fee = new_fee
+        #     # Set the new management fee
+        #     self.data.coop_share = new_fee
     
-        @sp.entrypoint
-        def update_fee_recipient(self, new_fee_recipient):
-            """Updates the marketplace management fee recipient address.
+        # @sp.entrypoint
+        # def update_fee_recipient(self, new_fee_recipient):
+        #     """Updates the marketplace management fee recipient address.
     
-            Parameters
-            ----------
-            new_fee_recipient: sp.TAddress
-                The new address that will receive the marketplace fees. It could be
-                a tz or KT address.
+        #     Parameters
+        #     ----------
+        #     new_fee_recipient: sp.TAddress
+        #         The new address that will receive the marketplace fees. It could be
+        #         a tz or KT address.
     
-            """
-            # Define the input parameter data type
-            sp.cast(new_fee_recipient, sp.address)
+        #     """
+        #     # Define the input parameter data type
+        #     sp.cast(new_fee_recipient, sp.address)
     
-            # Check that the manager executed the entry point
-            self.check_is_manager()
+        #     # Check that the manager executed the entry point
+        #     assert self.check_is_manager(), "MP_NOT_MANAGER"
     
-            # Check that no tez have been transferred
-            self.check_no_tez_transfer()
+        #     # Check that no tez have been transferred
+        #     self.check_no_tez_transfer()
     
-            # Set the new management fee recipient address
-            self.data.fee_recipient = new_fee_recipient
+        #     # Set the new management fee recipient address
+        #     self.data.fee_recipient = new_fee_recipient
     
         @sp.entrypoint
         def transfer_manager(self, proposed_manager):
@@ -573,7 +822,7 @@ def m():
             sp.cast(proposed_manager, sp.address)
     
             # Check that the manager executed the entry point
-            self.check_is_manager()
+            assert self.check_is_manager(), "MP_NOT_MANAGER"
     
             # Check that no tez have been transferred
             self.check_no_tez_transfer()
@@ -615,62 +864,17 @@ def m():
     
             """
             # Define the input parameter data type
-            sp.cast(params, sp.record(
-                key=sp.string,
-                value=sp.bytes).layout(("key", "value")))
+            sp.cast(params, sp.big_map[sp.string, sp.bytes])
     
             # Check that the manager executed the entry point
-            self.check_is_manager()
+            assert self.check_is_manager(), "MP_NOT_MANAGER"
     
             # Check that no tez have been transferred
             self.check_no_tez_transfer()
     
             # Update the contract metadata
-            self.data.metadata[params.key] = params.value
+            self.data.metadata = params
     
-        @sp.entrypoint
-        def add_fa2(self, fa2):
-            """Adds a new FA2 token address to the list of tradable tokens.
-    
-            Parameters
-            ----------
-            fa2: sp.TAddress
-                The FA2 token contract address to add.
-    
-            """
-            # Define the input parameter data type
-            sp.cast(fa2, sp.address)
-    
-            # Check that the manager executed the entry point
-            self.check_is_manager()
-    
-            # Check that no tez have been transferred
-            self.check_no_tez_transfer()
-    
-            # Add the new FA2 token address
-            self.data.allowed_fa2s[fa2] = ()
-    
-        @sp.entrypoint
-        def remove_fa2(self, fa2):
-            """Removes one of the tradable FA2 token address.
-    
-            Parameters
-            ----------
-            fa2: sp.TAddress
-                The FA2 token contract address to remove.
-    
-            """
-            # Define the input parameter data type
-            sp.cast(fa2, sp.address)
-    
-            # Check that the manager executed the entry point
-            self.check_is_manager()
-    
-            # Check that no tez have been transferred
-            self.check_no_tez_transfer()
-    
-            # Remove the FA2 token address from the list of allowed FA2 tokens
-            del self.data.allowed_fa2s[fa2]
     
         @sp.entrypoint
         def set_pause_swaps(self, pause):
@@ -687,7 +891,7 @@ def m():
             sp.cast(pause, sp.bool)
     
             # Check that the manager executed the entry point
-            self.check_is_manager()
+            assert self.check_is_manager(), "MP_NOT_MANAGER"
     
             # Check that no tez have been transferred
             self.check_no_tez_transfer()
@@ -710,7 +914,7 @@ def m():
             sp.cast(pause, sp.bool)
     
             # Check that the manager executed the entry point
-            self.check_is_manager()
+            assert self.check_is_manager(), "MP_NOT_MANAGER"
     
             # Check that no tez have been transferred
             self.check_no_tez_transfer()
@@ -730,27 +934,6 @@ def m():
             """
             return self.data.manager
     
-        @sp.onchain_view()
-        def is_allowed_fa2(self, fa2):
-            """Checks if a given FA2 token contract can be traded in the
-            marketplace.
-    
-            Parameters
-            ----------
-            fa2: sp.TAddress
-                The FA2 token contract address.
-    
-            Returns
-            -------
-            sp.TBool
-                True, if the token can be traded in the marketplace.
-    
-            """
-            # Define the input parameter data type
-            sp.cast(fa2, sp.address)
-    
-            # Return if it can be traded or not
-            return self.data.allowed_fa2s.contains(fa2)
     
         @sp.onchain_view()
         def has_swap(self, swap_id):
@@ -816,8 +999,162 @@ def m():
             """
             return self.data.counter
     
+        # @sp.onchain_view()
+        # def get_fee(self):
+        #     """Returns the marketplace fee.
+    
+        #     Returns
+        #     -------
+        #     sp.TNat
+        #         The marketplace fee in per mille units.
+    
+        #     """
+        #     return self.data.coop_share
+    
+        # @sp.onchain_view()
+        # def get_fee_recipient(self):
+        #     """Returns the marketplace fee recipient address.
+    
+        #     Returns
+        #     -------
+        #     sp.TAddress
+        #         The address that receives the marketplace fees.
+    
+        #     """
+        #     return self.data.fee_recipient
+
+
+    class CoopFactory(sp.Contract):
+
+        def __init__(self, manager, metadata, factory_share):
+
+            # The contract manager. It could be a tz or KT address.
+            self.data.manager = sp.cast(manager, sp.address)
+            # The proposed new manager address. Only set when a new manager is
+            # proposed.
+            self.data.proposed_manager = sp.cast(None, sp.option[sp.address])
+            # The contract metadata bigmap.
+            # The metadata is stored as a json file in IPFS and the big map
+            # contains the IPFS path.
+            self.data.metadata=sp.cast(metadata, sp.big_map[sp.string, sp.bytes])
+            # The factory share taken for each collect operation in per mille
+            # units (25 = 2.5%).
+            self.data.factory_share = sp.cast(factory_share, sp.nat)
+            # The address that will receive the marketplace fees. It could be
+            # a tz or KT address.
+            self.data.factory_share_recipient=sp.cast(manager, sp.address)
+            # List of originated coops
+            self.data.coops=sp.cast(sp.big_map(), sp.big_map[sp.address, sp.unit])
+
+            
+        @sp.private(with_storage="read-only")
+        def check_is_manager(self):
+            """Checks that the address that called the entry point is the contract
+            manager.
+    
+            """
+            return sp.sender == self.data.manager
+
+        @sp.private(with_storage="read-only")
+        def check_no_tez_transfer(self):
+            """Checks that no tez were transferred in the operation.
+    
+            """
+            assert sp.amount == sp.tez(0), "MP_TEZ_TRANSFER"
+
+
+        @sp.entrypoint
+        def create_coop(self, params):
+
+            sp.cast(params, sp.record(
+                # coop_name = sp.string,
+                # coop_description = sp.string,
+                metadata = sp.big_map[sp.string, sp.bytes],
+                coop_share = sp.nat,
+                members = sp.set[sp.address],
+                tez_limit = sp.mutez
+            ))
+
+            # check that on-chain information is limited
+            # assert sp.len(params.coop_name) <= 50
+            # assert sp.len(params.coop_description) <= 1000
+    
+            # Check that no tez have been transferred
+            self.check_no_tez_transfer()
+
+            members = params.members
+            members.add(sp.sender)
+
+            s = sp.record(
+                # coop_name = params.coop_name,
+                # coop_description = params.coop_description,
+                metadata = params.metadata,
+                manager = sp.sender, 
+                proposed_manager = None,
+                members = members,
+                coop_share = params.coop_share,
+                tez_limit = params.tez_limit,
+                swaps = sp.big_map(),
+                counter = 0,
+                swaps_paused = False,
+                collects_paused = False,
+                factory_address = sp.self_address()
+            )
+
+            contract_address = sp.create_contract(Coop, None, sp.tez(0), s)
+            self.data.coops[contract_address] = ()
+
+
+        @sp.entrypoint
+        def update_factory_share(self, new_factory_share):
+            """Updates the marketplace management fees.
+    
+            Parameters
+            ----------
+            new_factory_share: sp.TNat
+                The new marketplace fee in per mille units (25 = 2.5%).
+    
+            """
+            # Define the input parameter data type
+            sp.cast(new_factory_share, sp.nat)
+    
+            # Check that the manager executed the entry point
+            assert self.check_is_manager(), "MP_NOT_MANAGER"
+    
+            # Check that no tez have been transferred
+            self.check_no_tez_transfer()
+    
+            # Check that the new fee is not larger than 25%
+            assert new_factory_share <= 250, "MP_WRONG_FEES"
+    
+            # Set the new management fee
+            self.data.factory_share = new_factory_share
+    
+        @sp.entrypoint
+        def update_factory_share_recipient(self, new_factory_share_recipient):
+            """Updates the marketplace management fee recipient address.
+    
+            Parameters
+            ----------
+            new_factory_share_recipient: sp.TAddress
+                The new address that will receive the marketplace fees. It could be
+                a tz or KT address.
+    
+            """
+            # Define the input parameter data type
+            sp.cast(new_factory_share_recipient, sp.address)
+    
+            # Check that the manager executed the entry point
+            assert self.check_is_manager(), "MP_NOT_MANAGER"
+    
+            # Check that no tez have been transferred
+            self.check_no_tez_transfer()
+    
+            # Set the new management fee recipient address
+            self.data.factory_share_recipient = new_factory_share_recipient
+
         @sp.onchain_view()
-        def get_fee(self):
+        def get_factory_share(self):
             """Returns the marketplace fee.
     
             Returns
@@ -826,10 +1163,10 @@ def m():
                 The marketplace fee in per mille units.
     
             """
-            return self.data.fee
+            return self.data.factory_share
     
         @sp.onchain_view()
-        def get_fee_recipient(self):
+        def get_factory_share_recipient(self):
             """Returns the marketplace fee recipient address.
     
             Returns
@@ -838,21 +1175,92 @@ def m():
                 The address that receives the marketplace fees.
     
             """
-            return self.data.fee_recipient
+            return self.data.factory_share_recipient
 
+        
+        @sp.entrypoint
+        def transfer_manager(self, proposed_manager):
+            """Proposes to transfer the marketplace manager to another address.
+    
+            Parameters
+            ----------
+            proposed_manager: sp.TAddress
+                The address of the proposed new marketplace manager. It could be a
+                tz or KT address.
+    
+            """
+            # Define the input parameter data type
+            sp.cast(proposed_manager, sp.address)
+    
+            # Check that the manager executed the entry point
+            assert self.check_is_manager(), "MP_NOT_MANAGER"
+    
+            # Check that no tez have been transferred
+            self.check_no_tez_transfer()
+    
+            # Set the new proposed manager address
+            self.data.proposed_manager = sp.Some(proposed_manager)
+    
+        @sp.entrypoint
+        def accept_manager(self):
+            """The proposed manager accepts the marketplace manager
+            responsabilities.
+    
+            """
+            # Check that there is a proposed manager
+            assert self.data.proposed_manager.is_some(), "MP_NO_NEW_MANAGER"
+    
+            # Check that the proposed manager executed the entry point
+            assert sp.sender == self.data.proposed_manager.unwrap_some(), "MP_NOT_PROPOSED_MANAGER"
+    
+            # Check that no tez have been transferred
+            self.check_no_tez_transfer()
+    
+            # Set the new manager address
+            self.data.manager = sp.sender
+    
+            # Reset the proposed manager value
+            self.data.proposed_manager = None
+    
+        @sp.entrypoint
+        def update_metadata(self, params):
+            """Updates the contract metadata.
+    
+            Parameters
+            ----------
+            params: sp.TRecord
+                The updated metadata parameters:
+                - key: the metadata big map key to update.
+                - value: the IPFS path to the json file with the updated metadata.
+    
+            """
+            # Define the input parameter data type
+            sp.cast(params, sp.big_map[sp.string, sp.bytes])
+    
+            # Check that the manager executed the entry point
+            assert self.check_is_manager(), "MP_NOT_MANAGER"
+    
+            # Check that no tez have been transferred
+            self.check_no_tez_transfer()
+    
+            # Update the contract metadata
+            self.data.metadata = params
+        
+            
 
-@sp.add_test(name="Marketplace")
+@sp.add_test()
 def test():
 
     fa2_admin = sp.test_account("fa2_admin")
     factory_admin = sp.test_account("factory_admin")
     coop_admin = sp.test_account("coop_admin")
+    coop_new_admin = sp.test_account("coop_new_admin")
     coop_member = sp.test_account("coop_member")
+    coop_member2 = sp.test_account("coop_member2")
     some_user = sp.test_account("some_user")
     some_user2 = sp.test_account("some_user2")
 
-    #sc = sp.test_scenario(m)
-    sc = sp.test_scenario([fa2.t, fa2.main, m])
+    sc = sp.test_scenario("Marketplace", [fa2.t, fa2.main, m])
     
     sc.h2("Initialize one FA2")
     fa2_contract1 = m.FA2Contract(fa2_admin.address)
@@ -868,56 +1276,60 @@ def test():
             sp.record(metadata = NFT0, to_ = coop_admin.address),
             sp.record(metadata = NFT1, to_ = some_user.address),
             sp.record(metadata = NFT1, to_ = coop_member.address),
-        ]
-    ).run(sender = fa2_admin)
+        ],
+        _sender = fa2_admin)
 
-    # sc.h2("Initialize another FA2")
-    # fa2_contract2 = m.FA2Contract(fa2_admin.address)
-    # sc += fa2_contract2
+    sc.h2("Initialize factory")
+    metadata = sp.big_map({"": sp.pack("ipfs://QmRF4jVmD5MsqLLd7ezEA1joUp5sMpsh8S67Ub9r2q8iv4")})
+    factory_share = 25
+    factory = m.CoopFactory(factory_admin.address, metadata, factory_share)
+    sc += factory
 
-    # sc.h2("Mint in FA2 2")
-    # fa2_contract2.mint(
-    #     [
-    #         sp.record(metadata = NFT0, to_ = coop_admin.address),
-    #         sp.record(metadata = NFT1, to_ = some_user.address),
-    #         sp.record(metadata = NFT1, to_ = coop_member.address),
-    #     ]
-    # ).run(sender = fa2_admin)
+    factory.update_metadata(metadata, _sender = factory_admin)
+    factory.update_factory_share(30, _sender = factory_admin)
     
-    sc.h2("Initialize market")
-    metadata = sp.big_map({"": sp.pack("ipfs://Qm")})
-    allowed_fa2s = sp.big_map({fa2_contract1.address: ()})
-    fee = 25
-    market = m.Marketplace(factory_admin.address, metadata, allowed_fa2s, fee)
-    sc += market
-
     sc.h2("Test coop factory")
     coop_share = 100
-    coop = market.create_coop(sp.record(
+    coop = factory.create_coop(sp.record(
+        # coop_name = 'coop name1',
+        # coop_description = 'coop_description',
+        metadata = metadata,
         coop_share = coop_share, 
-        members = sp.set()
-    )).run(sender = coop_admin)
+        members = sp.set(),
+        tez_limit = sp.tez(9)
+    ), _sender = coop_admin)
 
-    sc.h2("Initialize coop contract")
-    coop_share = 100
+
+    sc.h2("Initialize coop with market")
+    metadata = sp.big_map({"": sp.pack("ipfs://QmRF4jVmD5MsqLLd7ezEA1joUp5sMpsh8S67Ub9r2q8iv4")})
     members = sp.set()
-    coop = m.Coop(coop_admin.address, coop_share, members)
+    coop = m.Coop(coop_admin.address, metadata, coop_share, members, sp.tez(9), factory.address)
     sc += coop
-    # coop = market.create_coop().run(sender = coop_admin)
+
+    coop.update_metadata(metadata, _sender = coop_admin)
+    coop.update_coop_share(300, _sender = coop_admin)
+
+
+    # sc.h2("Initialize coop contract")
+    # # coop_share = 100
+    # # members = sp.set()
+    # coop = m.Coop(coop_admin.address, metadata, coop_share, members, sp.tez(9))
+    # sc += coop
     
     sc.h3("Add member to coop")
-    coop.add_members([coop_admin.address, coop_member.address]).run(sender = coop_admin)
-    coop.add_members([coop_admin.address, coop_member.address]).run(sender = coop_admin, valid = False)
+    coop.add_members([coop_admin.address, coop_member.address], _sender = coop_admin)
+    coop.add_members([coop_member2.address], _sender = coop_admin)
+    coop.add_members([coop_admin.address, coop_member.address], _sender = coop_admin, _valid = False)
 
     sc.h3("Put token_id 0 in the matketplace - update operators + swap")
     fa2_contract1.update_operators([sp.variant("add_operator", sp.record(
         owner = coop_admin.address,
-        operator = market.address,
+        operator = coop.address,
         token_id = 0))
-    ]).run(sender = coop_admin)
+    ], _sender = coop_admin)
 
     #sc.h2("Swap while changing creator - bug? How to avoid?")
-    market.swap(sp.record(
+    coop.swap(sp.record(
         coop_address=coop.address,
         fa2_address=fa2_contract1.address,
         objkt_id=0,
@@ -925,13 +1337,13 @@ def test():
         xtz_per_objkt=sp.tez(100),
         royalties=100,
         creator=some_user.address
-    )).run(sender = coop_admin)
+    ), _sender = coop_admin)
 
     sc.h3("Collect token 0")
-    market.collect(0).run(sender = some_user2, amount = sp.tez(100))
+    coop.collect(0, _sender = some_user2, _amount = sp.tez(100))
 
     sc.h2("The user that collected token 0 tries to swap in the same coop but it's not a member")
-    market.swap(sp.record(
+    coop.swap(sp.record(
         coop_address=coop.address,
         fa2_address=fa2_contract1.address,
         objkt_id=0,
@@ -939,16 +1351,16 @@ def test():
         xtz_per_objkt=sp.tez(100),
         royalties=100,
         creator=some_user.address
-    )).run(sender = some_user2, valid=False)
+    ), _sender = some_user2, _valid=False)
     
     sc.h2("Put token 1 in the market without being a coop member")
     fa2_contract1.update_operators([sp.variant("add_operator", sp.record(
         owner = some_user.address,
-        operator = market.address,
+        operator = coop.address,
         token_id = 1))
-    ]).run(sender = some_user)
+    ], _sender = some_user)
     
-    market.swap(sp.record(
+    coop.swap(sp.record(
         coop_address=coop.address,
         fa2_address=fa2_contract1.address,
         objkt_id=1,
@@ -956,9 +1368,22 @@ def test():
         xtz_per_objkt=sp.tez(100),
         royalties=100,
         creator=coop_admin.address
-    )).run(sender = some_user, valid=False)
+    ), _sender = some_user, _valid=False)
 
+    sc.h1("Add new admin to coop")
+    coop.add_members([coop_new_admin.address], _sender = coop_admin)
 
-    sc.h1("Transfer manager")
-    coop.transfer_manager(coop_member.address).run(sender = coop_admin)
-    coop.accept_manager().run(sender = coop_member)
+    sc.h3("Transfer manager")
+    coop.transfer_manager(coop_new_admin.address, _sender = coop_admin)
+    coop.accept_manager(_sender = coop_new_admin)
+
+    # sc.h1('Change coop name')
+    # coop.update_name('new name', _sender = coop_admin, valid = False)
+    # coop.update_name('new name', _sender = coop_new_admin)
+    coop.update_metadata(metadata, _sender = coop_new_admin)
+
+    sc.h1("Distribute")
+    coop.distribute(_sender = coop_admin, _valid = False)
+
+    sc.h1("Delete old admin")
+    coop.delete_member(coop_admin.address, _sender = coop_admin)
