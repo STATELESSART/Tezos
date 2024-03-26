@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Profile } from '../../models/profile.model'
-import { TzprofilesService } from '../../services/tzprofiles.service';
+// import { TzprofilesService } from '../../services/tzprofiles.service';
 import { TzktService } from 'src/app/services/tzkt.service';
 import { Nft } from 'src/app/models/nft.model';
 import { NftTzkt } from 'src/app/models/nft_tzkt.model';
-import { IndexerService } from 'src/app/services/indexer.service';
+// import { IndexerService } from 'src/app/services/indexer.service';
 import { Coop, CoopMember } from 'src/app/models/coop.model';
 import { CoopDetail } from 'src/app/models/coop_detail.model';
 
@@ -24,9 +24,9 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private tzprofile: TzprofilesService,
+    // private tzprofile: TzprofilesService,
     private tzkt: TzktService,
-    private indexer: IndexerService
+    // private indexer: IndexerService
   ) {}
  
   ngOnInit() {
@@ -35,7 +35,7 @@ export class ProfileComponent implements OnInit {
       this.profileReady = false
       this.walletAddress = params['id'];
  
-      (await this.tzprofile.getUserProfile(this.walletAddress)).subscribe(data => {
+      (await this.tzkt.getUserProfile(this.walletAddress)).subscribe(data => {
         this.profile = data
         this.profileReady = true
       });
@@ -45,10 +45,10 @@ export class ProfileComponent implements OnInit {
         console.log(nfts)
       });
 
-      (await this.indexer.getMemberCoops(this.walletAddress)).subscribe(coops => {
-        this.walletCoops = coops
-        console.log(coops)
-      });
+      // (await this.indexer.getMemberCoops(this.walletAddress)).subscribe(coops => {
+      //   this.walletCoops = coops
+      //   console.log(coops)
+      // });
 
     })
 

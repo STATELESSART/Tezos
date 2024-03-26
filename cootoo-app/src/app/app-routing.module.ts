@@ -32,7 +32,7 @@ const routes: Routes = [
     }
   },
   {
-    path: 'view/:id',
+    path: 'coop/:id',
     component: ViewCoopComponent,
     data: {
       seo: {

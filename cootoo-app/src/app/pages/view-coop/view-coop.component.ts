@@ -5,8 +5,8 @@ import { Nft } from 'src/app/models/nft.model';
 import { TaquitoService } from 'src/app/services/taquito.service';
 import { TzktService } from 'src/app/services/tzkt.service';
 import { FormControl, FormGroup, Validators, ValidationErrors, ValidatorFn, AbstractControl, FormBuilder, FormArray } from '@angular/forms';
-import { IndexerService } from 'src/app/services/indexer.service';
-import { Observable, of } from 'rxjs'
+// import { IndexerService } from 'src/app/services/indexer.service';
+import { Observable, map, of } from 'rxjs'
 import { CoopDetail } from 'src/app/models/coop_detail.model';
 
 @Component({
@@ -27,16 +27,17 @@ export class ViewCoopComponent implements OnInit {
   formValue: Member[] = []
   deleteFormValue: string = ''
 
-  coop: Observable<CoopDetail> = of()
+  
+  coop: CoopDetail = new CoopDetail
   // coopNfts: Nft[] = []
   coopAddress: string = ''
 
   constructor(
     private route: ActivatedRoute,
-    // private tzkt: TzktService,
+    private tzkt: TzktService,
     private taquito: TaquitoService,
     private fb: FormBuilder,
-    private indexer: IndexerService
+    // private indexer: IndexerService
   ){
     this.form.valueChanges.subscribe(_ => {
       this.formValue = this.form.value.members as Member[];
@@ -66,12 +67,29 @@ export class ViewCoopComponent implements OnInit {
   }
 
 
-  async ngOnInit() {
+  ngOnInit() {
 
     this.route.params.subscribe(async (params: Params) => {
       this.coopAddress = params['id'];
 
-      this.coop = (await this.indexer.getCoop(params['id']))
+      (this.tzkt.getCoopDetail(params['id'])).subscribe(coop => {
+        console.log(coop)
+        this.coop = coop
+      })
+      
+      // pipe(
+      //   map(coop => {
+      //   console.log(coop)
+      //   // coop.then(coop => {
+      //   //   coop.subscribe(coop => {
+      //   //     this.coop = coop
+      //   //     console.log(this.coop)
+      //   //   })
+          
+      //   // })
+        
+      // }))
+      
       // .subscribe(coop => {
       //   if (coop) {
       //     this.coop = coop

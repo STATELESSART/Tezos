@@ -5,7 +5,7 @@ import { environment } from 'src/environments/environment';
 import { FormControl } from '@angular/forms';
 // import { OverlayContainer } from '@angular/cdk/overlay';
 import { Observable } from 'rxjs'
-import { TzprofilesService } from './services/tzprofiles.service';
+// import { TzprofilesService } from './services/tzprofiles.service';
 import { Profile } from './models/profile.model'
 import { AccountInfo } from '@airgap/beacon-sdk'
 import { Store } from '@ngrx/store'
@@ -16,6 +16,7 @@ import * as actions from './connect-wallet.actions'
 // import { Router, Event, NavigationEnd, NavigationStart, ActivatedRoute } from '@angular/router';
 import { filter, map, mergeMap, observeOn, scan  } from 'rxjs/operators';
 import { asyncScheduler } from 'rxjs';
+import { TzktService } from './services/tzkt.service';
 
 @Component({
   selector: 'app-root',
@@ -37,10 +38,11 @@ export class AppComponent {
   constructor(
     private readonly store$: Store<State>,
     // private overlay: OverlayContainer,
-    private tzprofile: TzprofilesService,
+    // private tzprofile: TzprofilesService,
     // private router: Router, 
     // private activatedRoute: ActivatedRoute, 
     // private seoService: SeoService
+    private tzkt: TzktService
   ) {
     this.connectedWallet$ = this.store$.select(
       (state) => (state as any).app.connectedWallet as AccountInfo | undefined
@@ -60,7 +62,7 @@ export class AppComponent {
     this.connectedWallet$.subscribe(async accountInfo => {
       this.ownAddress = accountInfo?.address
       if (this.ownAddress) {
-        (await this.tzprofile.getUserProfile(this.ownAddress)).subscribe(profile => {
+        (await this.tzkt.getUserProfile(this.ownAddress)).subscribe(profile => {
           this.profile = profile
         })
       }

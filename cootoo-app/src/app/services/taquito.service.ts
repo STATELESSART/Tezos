@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { OpKind, TezosToolkit } from '@taquito/taquito';
+import { MichelsonMap, OpKind, TezosToolkit } from '@taquito/taquito';
 import { BeaconWallet } from '@taquito/beacon-wallet';
+import { char2Bytes } from '@taquito/utils';
 import { NetworkType, AccountInfo } from '@airgap/beacon-wallet'
 import { BeaconEvent } from '@airgap/beacon-dapp';
 import { Store } from '@ngrx/store'
@@ -93,15 +94,20 @@ export class TaquitoService {
 
   // ----- MARKETPLACE CONTRACT ------  
 
-  async createCoop(coopShare: number, members: string[]) {
+  async createCoop(coop_share: number, members: string[], metadata: string, tezLimit: number) {
 
     this.taquito.setProvider({ wallet: this.wallet });
 
+    let metadataMap = {
+      "": char2Bytes('tezos-storage:content'), 
+      "content": char2Bytes(metadata)}
     try {
       return await this.taquito.wallet.at(this.contract)
         .then((c: any) => c.methods.create_coop(
-            coopShare,
-            members
+            coop_share,
+            members,
+            MichelsonMap.fromLiteral(metadataMap),
+            tezLimit
           )
           .send()
       ).then((op: any) => {
@@ -124,12 +130,12 @@ export class TaquitoService {
     // const ownerAddress = this.state.proxyAddress || from;
 
     const fa2 = await this.taquito.wallet.at(swap.fa2_address)
-    const marketplace = await this.taquito.wallet.at(this.contract)
+    const marketplace = await this.taquito.wallet.at(swap.coop_address)
 
     const operatorParamsAdd = [{
       add_operator: {
           owner: walletAddress,
-          operator: this.contract,
+          operator: swap.coop_address,
           token_id: swap.objkt_id
       }
     }]
@@ -137,7 +143,7 @@ export class TaquitoService {
     const operatorParamsRemove = [{
       remove_operator: {
           owner: walletAddress,
-          operator: this.contract,
+          operator: swap.coop_address,
           token_id: swap.objkt_id
       }
     }]
@@ -233,12 +239,12 @@ export class TaquitoService {
   // }
 
 
-  async collect(swapId: number, swapAmount: number) {
+  async collect(coopAddress: string, swapId: number, swapAmount: number) {
 
     this.taquito.setProvider({ wallet: this.wallet });
 
     try {
-      return await this.taquito.wallet.at(this.contract)
+      return await this.taquito.wallet.at(coopAddress)
         .then((c: any) => c.methodsObject.collect(
           swapId
           )
@@ -260,14 +266,14 @@ export class TaquitoService {
 
   // ------- INDIVIDUAL COOP CONTRACT ------- 
 
-  async addMembers(coop_address: string, address_list: string[]) {
+  async addMembers(coopAddress: string, addressList: string[]) {
 
     this.taquito.setProvider({ wallet: this.wallet });
 
     try {
-      return await this.taquito.wallet.at(coop_address)
+      return await this.taquito.wallet.at(coopAddress)
         .then((c: any) => c.methods.add_members(
-          address_list
+          addressList
         )
           .send()
       ).then((op: any) => {
@@ -302,14 +308,14 @@ export class TaquitoService {
     }
   }
 
-  async changeCoopShare(coopAddress: string, newCoopShare: number) {
+  async changeCoopShare(coopAddress: string, newcoop_share: number) {
 
     this.taquito.setProvider({ wallet: this.wallet });
 
     try {
       return await this.taquito.wallet.at(coopAddress)
         .then((c: any) => c.methods.change_coop_share(
-          newCoopShare
+          newcoop_share
         )
           .send()
       ).then((op: any) => {
@@ -322,28 +328,5 @@ export class TaquitoService {
       return [fail, e]
     }
   }
-
-
-  // async sendFunds(address: string, amount: number) {
-
-  //   this.taquito.setProvider({ wallet: this.wallet });
-
-  //   try {
-  //     return await this.taquito.wallet.at(address)
-  //       .then((c: any) => c.methods.send_funds()
-  //         .send({ amount: amount })
-  //     ).then((op: any) => {
-  //       return op.confirmation(this.numBlocks).then(() => {
-  //         return [false, 'success']
-  //       })
-  //     })
-  //   } catch (e) {
-  //     const fail = true
-  //     return [fail, e]
-  //   }
-  // }
-
-
-
  
 }

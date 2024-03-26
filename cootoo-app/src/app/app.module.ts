@@ -31,6 +31,7 @@ import { NftCardComponent } from './components/nft-card/nft-card.component';
 import { SafePipe } from './pipes/safe.pipe';
 import { ShortenPipe } from './pipes/shorten.pipe';
 import { IpfsPipe } from './pipes/ipfs.pipe';
+// import { NftPageComponent } from './nft-page/nft-page.component';
 
 @NgModule({
   declarations: [
@@ -43,7 +44,8 @@ import { IpfsPipe } from './pipes/ipfs.pipe';
     NftCardComponent,
     SafePipe,
     ShortenPipe,
-    IpfsPipe
+    IpfsPipe,
+    // NftPageComponent
   ],
   imports: [
     BrowserModule,

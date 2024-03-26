@@ -3,7 +3,7 @@
 This version corrects several small bugs from the v2 H=N marketplace contract
 and adds the possibility to trade different kinds of FA2 tokens.
 
-Modified for the new sintax of SmartPy v0.17 and also working as a coop factory.
+Modified for the new sintax of SmartPy v0.19 and also working as a coop factory.
 
 Error message codes:
 
@@ -678,7 +678,7 @@ def m():
                 if royalties_amount > sp.mutez(0):
                     sp.send(swap.creator, royalties_amount)
     
-                # Send the management fees !TODO
+                # Send the management fees
                 factory_share = sp.view("get_factory_share", self.data.factory_address, (), sp.nat).unwrap_some()
                 factory_amount = sp.split_tokens(
                         swap.xtz_per_objkt, factory_share, 1000)

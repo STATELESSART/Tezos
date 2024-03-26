@@ -1,9 +1,9 @@
 
 import { Coop } from "./coop.model";
-import { Swap } from "./swap.model";
+import { Swap, SwapParam } from "./swap.model";
 
 export class CoopDetail extends Coop {
-  swaps: Swap[] = []
+  swaps: SwapParam[] = []
 
 }
 

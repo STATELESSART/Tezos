@@ -1,6 +1,6 @@
 import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
 import { Nft } from 'src/app/models/nft.model';
-import { Swap } from 'src/app/models/swap.model';
+import { Swap, SwapParam } from 'src/app/models/swap.model';
 import { TaquitoService } from 'src/app/services/taquito.service';
 
 @Component({
@@ -10,8 +10,8 @@ import { TaquitoService } from 'src/app/services/taquito.service';
 })
 export class NftCardComponent {
 
-  @Input() nft: Nft | null = null
-  @Input() swap: Swap | null = null
+  @Input() nft: Nft | undefined = undefined
+  @Input() swap: SwapParam | undefined = undefined
 
   constructor(
     private taquito: TaquitoService
@@ -26,13 +26,13 @@ export class NftCardComponent {
 
       if (this.swap) {
 
-        this.nft = this.swap.token
+        this.nft = this.swap.nft
 
-
+        console.log(this.swap)
         // const loadingDialog = this.openDialog(false, false, '', true)
 
 
-        await this.taquito.collect(this.swap.id, this.swap.price).then(([fail, errorMessage]) => {
+        await this.taquito.collect(this.swap.coop_address, this.swap.id, this.swap.xtz_per_objkt).then(([fail, errorMessage]) => {
           if (!fail) {
             const dialogMessage = 'Sucess collect'
             console.log(dialogMessage)

@@ -9,11 +9,33 @@
           Create coop
         </h3> 
 
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Name</mat-label>
+          <input matInput class="text-right-align" formControlName="name" required>
+        </mat-form-field>
 
         <mat-form-field class="full-width" appearance="outline">
-            <mat-label>Coop share</mat-label>
-            <input matInput class="text-right-align" type="number" formControlName="coopShare" required>
-            <span matTextSuffix>%</span>
+          <mat-label>Description</mat-label>
+          <input matInput class="text-right-align" formControlName="description" required>
+        </mat-form-field>
+
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Image link</mat-label>
+          <input matInput class="text-right-align" formControlName="image" required>
+        </mat-form-field>
+
+        <img [src]="formValue.image">
+
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Coop share</mat-label>
+          <input matInput class="text-right-align" type="number" formControlName="coop_share" required>
+          <span matTextSuffix>%</span>
+        </mat-form-field>
+
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Tez limit to distribute</mat-label>
+          <input matInput class="text-right-align" type="number" formControlName="tez_limit" required>
+          <span matTextSuffix>tez</span>
         </mat-form-field>
   
 
@@ -37,6 +59,28 @@
             <mat-icon class="add-course-btn">add</mat-icon>
         </button>
   
+      
+      <!-- <div class="input-group mb-3">
+          <input type="file" class="form-control" id="inputGroupFile02" (change)="onFileUpload($event)">
+          <label class="input-group-text" for="inputGroupFile02">Upload</label>
+      </div> -->
+      
+      
+      <!-- <div >
+        <div>
+            Show file
+        </div>
+
+        <textarea 
+          fullWidth
+          type="text"
+          id="text" 
+          [(ngModel)]="uploadedFileResult"
+          [ngModelOptions]="{standalone: true}">
+        </textarea>
+      
+      </div> -->
+      
         
         
     
